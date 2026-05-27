@@ -1,9 +1,9 @@
 const CACHE_NAME = 'garage-smart-v2';
 const ASSETS = [
-  '/garage-smart/',
-  '/garage-smart/index.html',
-  '/garage-smart/manifest.json',
-  '/garage-smart/icon.png'
+  '/Smart-garage/',
+  '/Smart-garage/index.html',
+  '/Smart-garage/manifest.json',
+  '/Smart-garage/icon.png'
 ];
 
 self.addEventListener('install', (e) => {
