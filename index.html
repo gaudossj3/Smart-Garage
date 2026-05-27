@@ -1316,7 +1316,7 @@ function importaBackupJSON(input) {
 // --- ATTIVAZIONE SERVICE WORKER PER PWA (GITHUB PAGES) ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/Smart-garage/service-worker.js', { scope: '/Smart-garage/' })
+        navigator.serviceWorker.register('/Smart-Garage/service-worker.js', { scope: '/Smart-Garage/' })
             .then(reg => console.log('Service Worker Registrato con successo!', reg))
             .catch(err => console.error('Errore SW:', err));
     });
