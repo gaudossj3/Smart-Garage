@@ -1244,7 +1244,7 @@
 </body>
 </html>
 
-    async function svuotaDatabaseCompletamente() {
+   async function svuotaDatabaseCompletamente() {
         if (!confirm("Sei sicuro di voler CANCELLARE TUTTI i veicoli e i dati presenti nell'app? L'azione è irreversibile.")) return;
         let tx = db.transaction("impostazioni", "readwrite");
         let store = tx.objectStore("impostazioni");
@@ -1260,7 +1260,6 @@
         let store = tx.objectStore("impostazioni");
         let req = store.openCursor();
         let backupDati = {};
-
         req.onsuccess = function(e) {
             let cursor = e.target.result;
             if (cursor) {
@@ -1270,7 +1269,6 @@
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati));
                 const downloadAnchor = document.createElement('a');
                 const dataOggi = new Date().toISOString().slice(0,10);
-                
                 downloadAnchor.setAttribute("href", dataStr);
                 downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
                 document.body.appendChild(downloadAnchor);
@@ -1280,17 +1278,14 @@
         };
     }
 
-    /* --- FUNZIONE IMPORTA BACKUP AGGIORNATA PER OPERARE ONLINE --- */
     function importaBackupJSON(input) {
         if (!input.files || !input.files[0]) return;
         if (!confirm("Importando questo file sovrascriverai i dati attuali. Vuoi procedere?")) {
             input.value = "";
             return;
         }
-
         const file = input.files[0];
         const lettore = new FileReader();
-        
         lettore.onload = async function(e) {
             try {
                 const datiImportati = JSON.parse(e.target.result);
@@ -1298,21 +1293,16 @@
                     alert("Errore: Archivio non pronto. Riprova tra un secondo.");
                     return;
                 }
-
                 let tx = db.transaction("impostazioni", "readwrite");
                 let store = tx.objectStore("impostazioni");
-                
                 store.clear();
-                
                 Object.keys(datiImportati).forEach(chiave => {
                     store.put(datiImportati[chiave], chiave);
                 });
-                
                 tx.oncomplete = () => {
                     alert("Backup importato con successo! ✅");
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                 };
-                
                 tx.onerror = (err) => {
                     console.error("Errore transazione:", err);
                     alert("Errore durante il salvataggio dei dati nel database.");
@@ -1324,6 +1314,15 @@
             }
         };
         lettore.readAsText(file);
+    }
+
+    // --- ATTIVAZIONE SERVICE WORKER PER PWA (GITHUB PAGES) ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/garage-smart/service-worker.js', { scope: '/garage-smart/' })
+                .then(reg => console.log('Service Worker Registrato con successo!', reg))
+                .catch(err => console.error('Errore SW:', err));
+        });
     }
 </script>
 </body>
