@@ -1232,6 +1232,17 @@
         await mostraFotoLibrettoRetroSeEsistente();
         alert("Foto retro eliminata! ✅");
     }
+       // --- REGISTRAZIONE SERVICE WORKER AGGIUNTA ORA ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/garage-smart/service-worker.js', { scope: '/garage-smart/' })
+                .then(reg => console.log('Service Worker Registrato!', reg))
+                .catch(err => console.error('Errore SW:', err));
+        });
+    }
+</script>
+</body>
+</html>
 
     async function svuotaDatabaseCompletamente() {
         if (!confirm("Sei sicuro di voler CANCELLARE TUTTI i veicoli e i dati presenti nell'app? L'azione è irreversibile.")) return;
