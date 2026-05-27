@@ -2,7 +2,7 @@
   "name": "Garage Multiveicolo Smart",
   "short_name": "Garage Smart",
   "description": "Gestione scadenze, manutenzione e dati tecnici dei tuoi veicoli.",
-  "start_url": "/Smart-garage/index.html",
+  "start_url": "/Smart-Garage/index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#2563eb",
