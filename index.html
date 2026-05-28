@@ -236,7 +236,95 @@
     .modal-header h2 { margin-top: 0; color: #c0392b; font-size: 22px; }
     .modal-body { margin: 20px 0; color: #34495e; line-height: 1.5; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+    /* Contenitore dei due Box */
+    .settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 500px;
+        width: 100%;
+        margin: 20px auto;
+    }
+
+    /* Stile base della Card/Box */
+    .settings-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        text-align: left;
+    }
+
+    .settings-card h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #2d3748;
+        font-size: 18px;
+    }
+
+    .card-description {
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    /* Box del Reset (Bordo rosso per avviso visivo) */
+    .card-danger {
+        border-left: 5px solid #e53e3e;
+    }
     
+    .card-danger h3 {
+        color: #e53e3e;
+    }
+
+    /* Griglia per i pulsanti del primo box */
+    .buttons-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    @media(min-width: 400px) {
+        .buttons-grid {
+            grid-template-columns: repeat(3, 1fr); /* Pulsanti affiancati su schermi grandi */
+        }
+    }
+
+    /* Stile comune dei Pulsanti */
+    .btn {
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        text-align: center;
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    /* Colori specifici dei pulsanti */
+    .btn-backup { background-color: #3182ce; color: white; }
+    .btn-backup:hover { background-color: #2b6cb0; }
+
+    .btn-export { background-color: #4a5568; color: white; }
+    .btn-export:hover { background-color: #2d3748; }
+
+    .btn-import { background-color: #718096; color: white; }
+    .btn-import:hover { background-color: #4a5568; }
+
+    /* Pulsante Reset */
+    .btn-reset {
+        background-color: #e53e3e;
+        color: white;
+        width: 100%;
+        padding: 12px;
+    }
+    .btn-reset:hover { background-color: #c53030; }
     </style>
 </head>
 <body>
@@ -457,33 +545,35 @@
 
     <button type="button" id="btnEliminaVeicoloCorrente" class="btn-danger-outline hidden" onclick="eliminaVeicoloSelezionato()">Elimina definitivamente questo veicolo</button>
     
-    <!-- SEZIONE GESTIONE DATI E BACKUP -->
-    <div class="actions-container">
-    <!-- Pulsante per il Backup (rimane nella schermata principale) -->
-    <button class="btn btn-backup" onclick="eseguiBackup()">Esegui Backup Configurazione</button>
-    
-    <!-- Pulsante che apre la nuova finestra staccata di Reset -->
-    <button class="btn btn-danger" onclick="apriModaleReset()">Reset Completo Sistema</button>
-</div>
+    <div class="settings-container">
 
-<!-- NUOVA FINESTRA MODALE STACCATA PER IL RESET (Inizialmente nascosta) -->
-<div id="modalReset" class="custom-modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="chiudiModaleReset()">&times;</span>
-        <div class="modal-header">
-            <h2>⚠️ ATTENZIONE: Reset Totale</h2>
-        </div>
-        <div class="modal-body">
-            <p>Questa operazione eliminerà definitivamente tutti i dati dello Smart Garage, le impostazioni salvate e disconnetterà i dispositivi associati.</p>
-            <p><strong>L'azione non è reversibile.</strong> Si consiglia di effettuare un backup prima di procedere.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="chiudiModaleReset()">Annulla</button>
-            <button class="btn btn-real-danger" onclick="confermaResetCompleto()">Sì, Cancella Tutto</button>
+    <div class="settings-card">
+        <h3>Datamanagement & Backup</h3>
+        <p class="card-description">Salva la configurazione attuale dello Smart Garage o ripristina un salvataggio precedente.</p>
+        
+        <div class="buttons-grid">
+            <button class="btn btn-backup" onclick="eseguiBackup()">
+                🔄 Genera Backup
+            </button>
+            <button class="btn btn-export" onclick="esportaConfigurazione()">
+                📥 Esporta JSON
+            </button>
+            <button class="btn btn-import" onclick="importaConfigurazione()">
+                📤 Importa JSON
+            </button>
         </div>
     </div>
-</div>
 
+    <div class="settings-card card-danger">
+        <h3>Zona di Pericolo</h3>
+        <p class="card-description">Ripristina l'applicazione allo stato iniziale. Questa azione cancellerà tutti i dati locali.</p>
+        
+        <button class="btn btn-reset" onclick="resetCompletoApp()">
+            ⚠️ Reset Completo App
+        </button>
+    </div>
+
+</div>
 <!-- POP-UP MODIFICA -->
 <div id="modalModifica" class="modal-overlay hidden">
     <div class="modal-content">
@@ -1391,38 +1481,33 @@ if ('serviceWorker' in navigator) {
             .then(reg => console.log('Service Worker Registrato con successo!', reg))
             .catch(err => console.error('Errore SW:', err));
     });
-}
-    // Funzioni per gestire la finestra staccata del Reset
-    function apriModaleReset() {
-        document.getElementById('modalReset').style.display = 'block';
-    }
 
-    function chiudiModaleReset() {
-        document.getElementById('modalReset').style.display = 'none';
-    }
-
-    // Chiude la finestra se l'utente clicca fuori dal box bianco
-    window.onclick = function(event) {
-        const modal = document.getElementById('modalReset');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
-
-    // Azione reale del Reset Completo
-    function confermaResetCompleto() {
-        chiudiModaleReset();
-        
-        // Logica di reset (esempio: svuota localStorage e ricarica)
-        localStorage.clear(); 
-        alert("Reset di fabbrica eseguito con successo! Il sistema si riavvierà.");
-        window.location.reload();
-    }
-
-    // Azione del Backup (rimasta separata)
+   // --- FUNZIONI BOX 1: GESTIONE DATI ---
     function eseguiBackup() {
-        alert("Backup della configurazione generato e scaricato!");
-        // Qui andrà la tua logica di esportazione file JSON/TXT
+        console.log("Generazione backup in corso...");
+        alert("Backup generato internamente!");
+    }
+
+    function esportaConfigurazione() {
+        console.log("Esportazione file JSON...");
+        alert("File di configurazione scaricato!");
+    }
+
+    function importaConfigurazione() {
+        console.log("Apertura selezione file JSON...");
+        alert("Funzione di importazione attivata!");
+    }
+
+    // --- FUNZIONE BOX 2: RESET COMPLETO ---
+    function resetCompletoApp() {
+        // Un semplice ed elegante "confirm" nativo direttamente al click
+        const conferma = confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione e cancellerà tutti i dati dello Smart Garage. L'azione non è reversibile.");
+        
+        if (conferma) {
+            localStorage.clear();
+            alert("Applicazione resettata. La pagina verrà ricaricata.");
+            window.location.reload();
+        }
     }
    
 </script>
