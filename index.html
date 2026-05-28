@@ -1465,14 +1465,14 @@ async function salvaAssicurazione(e) {
         };
         lettore.readAsText(file);
     }
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/Smart-Garage/service-worker.js', { scope: '/Smart-Garage/' })
-                .then(reg => console.log('Service Worker Registrato con successo!', reg))
-                .catch(err => console.error('Errore SW:', err));
-        });
-    }
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js', { scope: './' })
+            .then(reg => console.log('Service Worker Registrato con successo!', reg))
+            .catch(err => console.error('Errore SW:', err));
+    });
+}
+    
 </script>
 </body>
 </html>
