@@ -981,20 +981,26 @@ if (cardModuloRevisione) cardModuloRevisione.classList.add('hidden');
             btnToggleAssicurazione.style.backgroundColor = "#4f46e5";
         }
 
-            cardModuloSpecificheOlio.classList.add('hidden');
-            btnToggleOlio.classList.remove('hidden');
-            btnToggleOlio.innerText = "🛢️ Specifiche e Foto Olio";
-            btnToggleOlio.style.backgroundColor = "var(--teal)";
+            if (cardModuloSpecificheOlio) cardModuloSpecificheOlio.classList.add('hidden');
+if (btnToggleOlio) {
+    btnToggleOlio.classList.remove('hidden');
+    btnToggleOlio.innerText = "🛢️ Specifiche e Foto Olio";
+    btnToggleOlio.style.backgroundColor = "var(--teal)";
+}
 
-            cardModuloResetService.classList.add('hidden');
-            btnToggleReset.classList.remove('hidden');
-            btnToggleReset.innerText = "🔄 Istruzioni Reset Service";
-            btnToggleReset.style.backgroundColor = "#d97706";
+if (cardModuloResetService) cardModuloResetService.classList.add('hidden');
+if (btnToggleReset) {
+    btnToggleReset.classList.remove('hidden');
+    btnToggleReset.innerText = "🔄 Istruzioni Reset Service";
+    btnToggleReset.style.backgroundColor = "#d97706";
+}
 
-            cardModuloFotoLibretto.classList.add('hidden');
-            btnToggleLibretto.classList.remove('hidden');
-            btnToggleLibretto.innerText = "📄 Libretto Circolazione";
-            btnToggleLibretto.style.backgroundColor = "#0891b2";
+if (cardModuloFotoLibretto) cardModuloFotoLibretto.classList.add('hidden');
+if (btnToggleLibretto) {
+    btnToggleLibretto.classList.remove('hidden');
+    btnToggleLibretto.innerText = "📄 Libretto Circolazione";
+    btnToggleLibretto.style.backgroundColor = "#0891b2";
+}
             
             campoModello.required = false; campoTarga.required = false;
             const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
