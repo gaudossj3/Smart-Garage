@@ -960,7 +960,8 @@ request.onerror = function() {
             bloccoAnagrafica.classList.add('hidden'); campoIntervallo.classList.add('hidden');
             boxKmOggi.classList.remove('hidden'); menuCategorie.classList.remove('hidden');
             cardImmatricolazione.classList.remove('hidden'); btnEliminaVeicoloCorrente.classList.remove('hidden'); bloccoNoteFuturo.classList.remove('hidden');
-            
+            if (campoModello) campoModello.required = false; 
+    if (campoTarga) campoTarga.required = false;
             
 
 cardModuloMeccanica.classList.add('hidden');
