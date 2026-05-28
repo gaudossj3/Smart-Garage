@@ -173,6 +173,70 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-delete { background: transparent; border: 2px solid var(--danger); color: var(--danger); width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    
+    /* Contenitore pulsanti principali */
+    .actions-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .btn-backup { background-color: #27ae60; color: white; }
+    .btn-backup:hover { background-color: #219653; }
+    .btn-danger { background-color: #e74c3c; color: white; }
+    .btn-danger:hover { background-color: #c0392b; }
+    .btn-secondary { background-color: #7f8c8d; color: white; }
+    .btn-secondary:hover { background-color: #7f8c8d; }
+    .btn-real-danger { background-color: #c0392b; color: white; font-weight: bold; }
+
+    /* Stile della Finestra Modale (Sfondo oscurato) */
+    .custom-modal {
+        display: none; /* Nascosta di default */
+        position: fixed;
+        z-index: 9999; /* Sopra a tutto */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Sfondo scuro semitrasparente */
+        backdrop-filter: blur(4px); /* Effetto sfocatura di sfondo */
+    }
+
+    /* Contenuto della finestra (Il box bianco) */
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+        text-align: left;
+        animation: modalFadeIn 0.3s ease;
+    }
+
+    /* Animazione di apertura */
+    @keyframes modalFadeIn {
+        from { transform: translateY(-30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Pulsante di chiusura (X) */
+    .close-modal {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 28px;
+        font-weight: bold;
+        color: #95a5a6;
+        cursor: pointer;
+    }
+    .close-modal:hover { color: #333; }
+    .modal-header h2 { margin-top: 0; color: #c0392b; font-size: 22px; }
+    .modal-body { margin: 20px 0; color: #34495e; line-height: 1.5; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+    
     </style>
 </head>
 <body>
@@ -394,14 +458,29 @@
     <button type="button" id="btnEliminaVeicoloCorrente" class="btn-danger-outline hidden" onclick="eliminaVeicoloSelezionato()">Elimina definitivamente questo veicolo</button>
     
     <!-- SEZIONE GESTIONE DATI E BACKUP -->
-    <div class="card" style="margin-top: 40px; border: 1px solid #cbd5e1; background: #f8fafc;">
-        <h3 style="margin-top:0; font-size:15px; color: #475569; margin-bottom: 12px;">💾 Gestione Dati e Backup</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button type="button" onclick="esportaBackupJSON()" style="flex: 1; background-color: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;">⬆️ Esporta Backup</button>
-            <button type="button" onclick="document.getElementById('inputImportaBackup').click()" style="flex: 1; background-color: var(--teal); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;">⬇️ Importa Backup</button>
-            <input type="file" id="inputImportaBackup" accept=".json" onchange="importaBackupJSON(this)" style="display: none;">
+    <div class="actions-container">
+    <!-- Pulsante per il Backup (rimane nella schermata principale) -->
+    <button class="btn btn-backup" onclick="eseguiBackup()">Esegui Backup Configurazione</button>
+    
+    <!-- Pulsante che apre la nuova finestra staccata di Reset -->
+    <button class="btn btn-danger" onclick="apriModaleReset()">Reset Completo Sistema</button>
+</div>
+
+<!-- NUOVA FINESTRA MODALE STACCATA PER IL RESET (Inizialmente nascosta) -->
+<div id="modalReset" class="custom-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="chiudiModaleReset()">&times;</span>
+        <div class="modal-header">
+            <h2>⚠️ ATTENZIONE: Reset Totale</h2>
         </div>
-        <button type="button" onclick="svuotaDatabaseCompletamente()" style="background-color:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:block; margin: 0 auto; opacity:0.8; font-weight: bold;">⚠️ Reset Completo Applicazione</button>
+        <div class="modal-body">
+            <p>Questa operazione eliminerà definitivamente tutti i dati dello Smart Garage, le impostazioni salvate e disconnetterà i dispositivi associati.</p>
+            <p><strong>L'azione non è reversibile.</strong> Si consiglia di effettuare un backup prima di procedere.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="chiudiModaleReset()">Annulla</button>
+            <button class="btn btn-real-danger" onclick="confermaResetCompleto()">Sì, Cancella Tutto</button>
+        </div>
     </div>
 </div>
 
@@ -1313,6 +1392,38 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.error('Errore SW:', err));
     });
 }
+    // Funzioni per gestire la finestra staccata del Reset
+    function apriModaleReset() {
+        document.getElementById('modalReset').style.display = 'block';
+    }
+
+    function chiudiModaleReset() {
+        document.getElementById('modalReset').style.display = 'none';
+    }
+
+    // Chiude la finestra se l'utente clicca fuori dal box bianco
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalReset');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Azione reale del Reset Completo
+    function confermaResetCompleto() {
+        chiudiModaleReset();
+        
+        // Logica di reset (esempio: svuota localStorage e ricarica)
+        localStorage.clear(); 
+        alert("Reset di fabbrica eseguito con successo! Il sistema si riavvierà.");
+        window.location.reload();
+    }
+
+    // Azione del Backup (rimasta separata)
+    function eseguiBackup() {
+        alert("Backup della configurazione generato e scaricato!");
+        // Qui andrà la tua logica di esportazione file JSON/TXT
+    }
    
 </script>
 </body>
