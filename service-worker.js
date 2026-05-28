@@ -2,7 +2,8 @@ const CACHE_NAME = 'garage-smart-v5';
 const ASSETS = [
   '/Smart-Garage/',
   '/Smart-Garage/index.html',
-  '/Smart-Garage/manifest.json'
+  '/Smart-Garage/manifest.json',
+  '/Smart-Garage/icon.png'
 ];
 
 self.addEventListener('install', (e) => {
