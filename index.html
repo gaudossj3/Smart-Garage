@@ -960,20 +960,27 @@ request.onerror = function() {
             boxKmOggi.classList.remove('hidden'); menuCategorie.classList.remove('hidden');
             cardImmatricolazione.classList.remove('hidden'); btnEliminaVeicoloCorrente.classList.remove('hidden'); bloccoNoteFuturo.classList.remove('hidden');
             
-            cardModuloMeccanica.classList.add('hidden');
-            btnToggleMeccanico.classList.remove('hidden');
-            btnToggleMeccanico.innerText = "➕ Apri modulo registrazione intervento";
-            btnToggleMeccanico.style.backgroundColor = "var(--primary)";
+            // Cerca questo blocco dentro gestisciVisibilitaCampi nell'ELSE e sostituiscilo così:
 
-            cardModuloRevisione.classList.add('hidden');
-            btnToggleRevisione.classList.remove('hidden');
-            btnToggleRevisione.innerText = "📋 Apri modulo registrazione revisione";
-            btnToggleRevisione.style.backgroundColor = "var(--purple)";
+cardModuloMeccanica.classList.add('hidden');
+btnToggleMeccanico.classList.remove('hidden');
+btnToggleMeccanico.innerText = "➕ Apri modulo registrazione intervento";
+btnToggleMeccanico.style.backgroundColor = "var(--primary)";
 
-            cardModuloAssicurazione.classList.add('hidden');
-            btnToggleAssicurazione.classList.remove('hidden');
-            btnToggleAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA";
-            btnToggleAssicurazione.style.backgroundColor = "#4f46e5";
+// AGGIUNTI I CONTROLLI DI SICUREZZA DI SEGUITO:
+if (cardModuloRevisione) cardModuloRevisione.classList.add('hidden');
+if (btnToggleRevisione) {
+    btnToggleRevisione.classList.remove('hidden');
+    btnToggleRevisione.innerText = "📋 Apri modulo registrazione revisione";
+    btnToggleRevisione.style.backgroundColor = "var(--purple)";
+}
+
+if (cardModuloAssicurazione) cardModuloAssicurazione.classList.add('hidden');
+if (btnToggleAssicurazione) {
+    btnToggleAssicurazione.classList.remove('hidden');
+    btnToggleAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA";
+    btnToggleAssicurazione.style.backgroundColor = "#4f46e5";
+}
 
             cardModuloSpecificheOlio.classList.add('hidden');
             btnToggleOlio.classList.remove('hidden');
