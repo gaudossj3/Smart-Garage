@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Garage Multiveicolo Smart</title>
-    <link rel="manifest" href="manifest.json">
+    <link class="saved-info" data-saved="2026-05-25" rel="manifest" href="manifest.json">
     <style>
         :root {
             --primary: #2563eb;
@@ -159,7 +159,6 @@
         }
         .hidden { display: none !important; }
 
-        /* --- STILI MODALE AGGIORNATI --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
@@ -173,158 +172,92 @@
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-delete { background: transparent; border: 2px solid var(--danger); color: var(--danger); width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    
-    /* Contenitore pulsanti principali */
-    .actions-container {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-    }
-    .btn-backup { background-color: #27ae60; color: white; }
-    .btn-backup:hover { background-color: #219653; }
-    .btn-danger { background-color: #e74c3c; color: white; }
-    .btn-danger:hover { background-color: #c0392b; }
-    .btn-secondary { background-color: #7f8c8d; color: white; }
-    .btn-secondary:hover { background-color: #7f8c8d; }
-    .btn-real-danger { background-color: #c0392b; color: white; font-weight: bold; }
-
-    /* Stile della Finestra Modale (Sfondo oscurato) */
-    .custom-modal {
-        display: none; /* Nascosta di default */
-        position: fixed;
-        z-index: 9999; /* Sopra a tutto */
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6); /* Sfondo scuro semitrasparente */
-        backdrop-filter: blur(4px); /* Effetto sfocatura di sfondo */
-    }
-
-    /* Contenuto della finestra (Il box bianco) */
-    .modal-content {
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 25px;
-        border-radius: 12px;
-        max-width: 450px;
-        width: 90%;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        position: relative;
-        text-align: left;
-        animation: modalFadeIn 0.3s ease;
-    }
-
-    /* Animazione di apertura */
-    @keyframes modalFadeIn {
-        from { transform: translateY(-30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    /* Pulsante di chiusura (X) */
-    .close-modal {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 28px;
-        font-weight: bold;
-        color: #95a5a6;
-        cursor: pointer;
-    }
-    .close-modal:hover { color: #333; }
-    .modal-header h2 { margin-top: 0; color: #c0392b; font-size: 22px; }
-    .modal-body { margin: 20px 0; color: #34495e; line-height: 1.5; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
-    /* Contenitore dei due Box */
-    .settings-container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        max-width: 500px;
-        width: 100%;
-        margin: 20px auto;
-    }
-
-    /* Stile base della Card/Box */
-    .settings-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        text-align: left;
-    }
-
-    .settings-card h3 {
-        margin-top: 0;
-        margin-bottom: 8px;
-        color: #2d3748;
-        font-size: 18px;
-    }
-
-    .card-description {
-        font-size: 13px;
-        color: #718096;
-        margin-bottom: 16px;
-        line-height: 1.4;
-    }
-
-    /* Box del Reset (Bordo rosso per avviso visivo) */
-    .card-danger {
-        border-left: 5px solid #e53e3e;
-    }
-    
-    .card-danger h3 {
-        color: #e53e3e;
-    }
-
-    /* Griglia per i pulsanti del primo box */
-    .buttons-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    @media(min-width: 400px) {
-        .buttons-grid {
-            grid-template-columns: repeat(3, 1fr); /* Pulsanti affiancati su schermi grandi */
+        
+        /* Contenitore dei due Box */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
         }
-    }
 
-    /* Stile comune dei Pulsanti */
-    .btn {
-        padding: 10px 14px;
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
-        text-align: center;
-    }
-    
-    .btn:active {
-        transform: scale(0.98);
-    }
+        /* Stile base della Card/Box */
+        .settings-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
 
-    /* Colori specifici dei pulsanti */
-    .btn-backup { background-color: #3182ce; color: white; }
-    .btn-backup:hover { background-color: #2b6cb0; }
+        .settings-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-size: 18px;
+        }
 
-    .btn-export { background-color: #4a5568; color: white; }
-    .btn-export:hover { background-color: #2d3748; }
+        .card-description {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
 
-    .btn-import { background-color: #718096; color: white; }
-    .btn-import:hover { background-color: #4a5568; }
+        /* Box del Reset (Bordo rosso per avviso visivo) */
+        .card-danger {
+            border-left: 5px solid #e53e3e;
+        }
+        
+        .card-danger h3 {
+            color: #e53e3e;
+        }
 
-    /* Pulsante Reset */
-    .btn-reset {
-        background-color: #e53e3e;
-        color: white;
-        width: 100%;
-        padding: 12px;
-    }
-    .btn-reset:hover { background-color: #c53030; }
+        /* Griglia per i pulsanti del primo box */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        @media(min-width: 400px) {
+            .buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Stile comune dei Pulsanti di Gestione */
+        .btn {
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-align: center;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-export { background-color: #2563eb; color: white; }
+        .btn-export:hover { background-color: #1d4ed8; }
+
+        .btn-import { background-color: #475569; color: white; }
+        .btn-import:hover { background-color: #334155; }
+
+        /* Pulsante Reset */
+        .btn-reset {
+            background-color: #e53e3e;
+            color: white;
+            width: 100%;
+            padding: 12px;
+        }
+        .btn-reset:hover { background-color: #c53030; }
     </style>
 </head>
 <body>
@@ -337,13 +270,11 @@
         <div class="tabs-container" id="tabsVeicoli"></div>
     </div>
 
-    <!-- STATO SCADENZE ATTIVE -->
     <div class="card">
         <h2 id="titoloStato" style="text-align: left; color: var(--primary); margin-top:0;">Stato Scadenze Attive</h2>
         <div class="scadenza-container" id="statoTagliando"></div>
     </div>
 
-    <!-- BOX KM INLINE E NOTE PROMEMORIA -->
     <div id="boxKmOggi" class="card hidden" style="padding: 15px;">
         <div class="km-inline-container">
             <label for="kmStrumentoOggi"><strong>Km totali ad OGGI:</strong></label>
@@ -356,14 +287,12 @@
         </div>
     </div>
     
-    <!-- MENU DELLE CATEGORIE AGGIORNATO E RIORDINATO -->
     <div class="category-menu hidden" id="menuCategorie">
         <div class="category-btn active" data-cat="meccanica" onclick="cambiaCategoria('meccanica')">🔧 Manutenzione</div>
         <div class="category-btn" data-cat="burocrazia" onclick="cambiaCategoria('burocrazia')">📄 Scadenze e Polizze</div>
         <div class="category-btn" data-cat="tecnico_fisso" onclick="cambiaCategoria('tecnico_fisso')">⚙️ Dati Tecnici</div>
     </div>
 
-    <!-- SCHEDA 1: MANUTENZIONE MECCANICA -->
     <div id="sezioneMeccanica" class="cat-content hidden">
         <div class="pulsantiera-verticale">
             <button type="button" class="btn-toggle-modulo btn-blue" id="btnToggleModuloMeccanico" onclick="toggleModuloScomparsa('meccanica')">➕ Apri modulo registrazione intervento</button>
@@ -425,14 +354,13 @@
         </div>
     </div>
 
-    <!-- SCHEDA 2: SCADENZE E POLIZZE -->
     <div id="sezioneBurocrazia" class="cat-content hidden">
         <div class="card" id="cardImmatricolazione">
             <h2 style="color: var(--purple); text-align: left; margin-top:0;">Dati di Fabbrica del Veicolo</h2>
             <div class="form-group" style="margin-bottom:0;">
                 <label for="dataImmatricolazione">Data di prima Immatricolazione (Da Libretto)</label>
                 <input type="date" id="dataImmatricolazione" onchange="salvaDataImmatricolazioneAlVolo()">
-                <small style="color:#64748b; margin-top:4px; display:block;">Serve per calcolare la primissima revisione obbligatoria dopo 4 anni.</small>
+                <small style="color:#64748b; margin-top:4px; display:block;">Serve per calcolare la primissima revisione obbligatoria dopo 4 years.</small>
             </div>
         </div>
 
@@ -469,7 +397,6 @@
         </div>
     </div>
 
-    <!-- SCHEDA 3: DATI TECNICI FISSI -->
     <div id="sezioneTecnicoFisso" class="cat-content hidden">
         <div class="pulsantiera-verticale">
             <button type="button" class="btn-toggle-modulo btn-teal" id="btnToggleModuloOlio" onclick="toggleModuloScomparsa('specifiche_olio')">🛢️ Gestisci Specifiche e Foto Olio</button>
@@ -546,35 +473,32 @@
     <button type="button" id="btnEliminaVeicoloCorrente" class="btn-danger-outline hidden" onclick="eliminaVeicoloSelezionato()">Elimina definitivamente questo veicolo</button>
     
     <div class="settings-container">
+        <div class="settings-card">
+            <h3>Datamanagement & Backup</h3>
+            <p class="card-description">Salva l'intero archivio dello Smart Garage in formato JSON o ripristina un vecchio backup sul telefono/computer.</p>
+            
+            <div class="buttons-grid">
+                <button class="btn btn-export" onclick="esportaBackupJSON()">
+                    📥 Esporta File Backup
+                </button>
+                <button class="btn btn-import" onclick="document.getElementById('inputFileBackupNascosto').click()">
+                    📤 Importa File Backup
+                </button>
+            </div>
+            <input type="file" id="inputFileBackupNascosto" accept=".json" onchange="importaBackupJSON(this)" style="display: none;">
+        </div>
 
-    <div class="settings-card">
-        <h3>Datamanagement & Backup</h3>
-        <p class="card-description">Salva la configurazione attuale dello Smart Garage o ripristina un salvataggio precedente.</p>
-        
-        <div class="buttons-grid">
-            <button class="btn btn-backup" onclick="eseguiBackup()">
-                🔄 Genera Backup
-            </button>
-            <button class="btn btn-export" onclick="esportaConfigurazione()">
-                📥 Esporta JSON
-            </button>
-            <button class="btn btn-import" onclick="importaConfigurazione()">
-                📤 Importa JSON
+        <div class="settings-card card-danger">
+            <h3>Zona di Pericolo</h3>
+            <p class="card-description">Ripristina l'applicazione allo stato iniziale di fabbrica. Questa azione eliminerà permanentemente tutti i veicoli e gli storici inseriti.</p>
+            
+            <button class="btn btn-reset" onclick="svuotaDatabaseCompletamente()">
+                ⚠️ Svuota e Reset Completo App
             </button>
         </div>
     </div>
-
-    <div class="settings-card card-danger">
-        <h3>Zona di Pericolo</h3>
-        <p class="card-description">Ripristina l'applicazione allo stato iniziale. Questa azione cancellerà tutti i dati locali.</p>
-        
-        <button class="btn btn-reset" onclick="resetCompletoApp()">
-            ⚠️ Reset Completo App
-        </button>
-    </div>
-
 </div>
-<!-- POP-UP MODIFICA -->
+
 <div id="modalModifica" class="modal-overlay hidden">
     <div class="modal-content">
         <h2 style="color:var(--primary); margin-top:0; margin-bottom:5px;" id="titoloModalModifica">Modifica Record</h2>
@@ -624,893 +548,4 @@
     };
     request.onsuccess = function(e) {
         db = e.target.result;
-        inizializzaApp();
-    };
-    request.onerror = function() {
-        alert("Errore nell'inizializzazione dell'archivio sicuro.");
-    };
-
-    async function leggiDato(chiave) {
-        return new Promise((resolve) => {
-            let tx = db.transaction("impostazioni", "readonly");
-            let store = tx.objectStore("impostazioni");
-            let req = store.get(chiave);
-            req.onsuccess = () => resolve(req.result || null);
-            req.onerror = () => resolve(null);
-        });
-    }
-
-    async function scriviDato(chiave, valore) {
-        return new Promise((resolve) => {
-            let tx = db.transaction("impostazioni", "readwrite");
-            let store = tx.objectStore("impostazioni");
-            store.put(valore, chiave);
-            tx.oncomplete = () => resolve(true);
-        });
-    }
-
-    async function inizializzaApp() {
-        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-        const targhe = Object.keys(mappaNomi);
-        
-        if (targhe.length === 0) {
-            attivaNuovoVeicolo();
-        } else {
-            veicoloAttivo = targhe[0];
-            modalitaNuovoVeicolo = false;
-        }
-        
-        await aggiornaInterfaccia();
-        document.getElementById('btnNuovoVeicolo').addEventListener('click', attivaNuovoVeicolo);
-        document.getElementById('kmStrumentoOggi').addEventListener('input', salvaKmAttualiOggi);
-        document.getElementById('revisioneForm').addEventListener('submit', salvaRevisione);
-        document.getElementById('assicurazioneForm').addEventListener('submit', salvaAssicurazione);
-        document.getElementById('tagliandoForm').addEventListener('submit', salvaIntervento);
-    }
-
-    function toggleModuloScomparsa(sezione) {
-        const cMeccanica = document.getElementById('cardModuloRegistrazioneMeccanica');
-        const bMeccanico = document.getElementById('btnToggleModuloMeccanico');
-        const cRevisione = document.getElementById('cardModuloRegistrazioneRevisione');
-        const bRevisione = document.getElementById('btnToggleModuloRevisione');
-        const cAssicurazione = document.getElementById('cardModuloRegistrazioneAssicurazione');
-        const bAssicurazione = document.getElementById('btnToggleModuloAssicurazione');
-        const cOlio = document.getElementById('cardModuloSpecificheOlio');
-        const bOlio = document.getElementById('btnToggleModuloOlio');
-        const cReset = document.getElementById('cardModuloResetService');
-        const bReset = document.getElementById('btnToggleModuloReset');
-        const cLibretto = document.getElementById('cardModuloFotoLibretto');
-        const bLibretto = document.getElementById('btnToggleModuloLibretto');
-
-        if (sezione === 'meccanica') {
-            if (cMeccanica.classList.contains('hidden')) {
-                cMeccanica.classList.remove('hidden'); bMeccanico.innerText = "➖ Chiudi modulo registrazione intervento"; bMeccanico.style.backgroundColor = "#64748b";
-            } else {
-                cMeccanica.classList.add('hidden'); bMeccanico.innerText = "➕ Apri modulo registrazione intervento"; bMeccanico.style.backgroundColor = "var(--primary)";
-            }
-        } else if (sezione === 'revisioni') {
-            cAssicurazione.classList.add('hidden'); bAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA"; bAssicurazione.style.backgroundColor = "#4f46e5";
-            if (cRevisione.classList.contains('hidden')) {
-                cRevisione.classList.remove('hidden'); bRevisione.innerText = "➖ Chiudi modulo registrazione revisione"; bRevisione.style.backgroundColor = "#64748b";
-            } else {
-                cRevisione.classList.add('hidden'); bRevisione.innerText = "📋 Apri modulo registrazione revisione"; bRevisione.style.backgroundColor = "var(--purple)";
-            }
-        } else if (sezione === 'assicurazioni') {
-            cRevisione.classList.add('hidden'); bRevisione.innerText = "📋 Apri modulo registrazione revisione"; bRevisione.style.backgroundColor = "var(--purple)";
-            if (cAssicurazione.classList.contains('hidden')) {
-                cAssicurazione.classList.remove('hidden'); bAssicurazione.innerText = "➖ Chiudi modulo rinnovo polizza"; bAssicurazione.style.backgroundColor = "#64748b";
-            } else {
-                cAssicurazione.classList.add('hidden'); bAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA"; bAssicurazione.style.backgroundColor = "#4f46e5";
-            }
-        } else if (sezione === 'specifiche_olio') {
-            cReset.classList.add('hidden'); bReset.innerText = "🔄 Apri istruzioni Reset Service"; bReset.style.backgroundColor = "#d97706";
-            cLibretto.classList.add('hidden'); bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; bLibretto.style.backgroundColor = "#0891b2";
-            if (cOlio.classList.contains('hidden')) {
-                cOlio.classList.remove('hidden'); bOlio.innerText = "➖ Chiudi Specifiche Olio"; bOlio.style.backgroundColor = "#64748b";
-            } else {
-                cOlio.classList.add('hidden'); bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; bOlio.style.backgroundColor = "var(--teal)";
-            }
-        } else if (sezione === 'reset_service') {
-            cOlio.classList.add('hidden'); bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; bOlio.style.backgroundColor = "var(--teal)";
-            cLibretto.classList.add('hidden'); bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; bLibretto.style.backgroundColor = "#0891b2";
-            if (cReset.classList.contains('hidden')) {
-                cReset.classList.remove('hidden'); bReset.innerText = "➖ Chiudi istruzioni Reset Service"; bReset.style.backgroundColor = "#64748b";
-            } else {
-                cReset.classList.add('hidden'); bReset.innerText = "🔄 Apri istruzioni Reset Service"; bReset.style.backgroundColor = "#d97706";
-            }
-        } else if (sezione === 'foto_libretto') {
-            cOlio.classList.add('hidden'); bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; bOlio.style.backgroundColor = "var(--teal)";
-            cReset.classList.add('hidden'); bReset.innerText = "🔄 Apri istruzioni Reset Service"; bReset.style.backgroundColor = "#d97706";
-            if (cLibretto.classList.contains('hidden')) {
-                cLibretto.classList.remove('hidden'); bLibretto.innerText = "➖ Chiudi modulo foto libretto"; bLibretto.style.backgroundColor = "#64748b";
-            } else {
-                cLibretto.classList.add('hidden'); bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; bLibretto.style.backgroundColor = "#0891b2";
-            }
-        }
-    }
-
-    function salvaDataImmatricolazioneAlVolo() { salvaDataImmatricolazioneAlVoloAsync(); }
-    async function salvaDataImmatricolazioneAlVoloAsync() {
-        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
-        const dataImm = document.getElementById('dataImmatricolazione').value;
-        let mappaImm = await leggiDato("garage_immatricolazioni") || {};
-        mappaImm[veicoloAttivo] = dataImm;
-        await scriviDato("garage_immatricolazioni", mappaImm);
-        const interventi = await leggiDato("interventi") || [];
-        await calcolaScadenzeFiltrate(interventi, veicoloAttivo);
-    }
-
-    function salvaSpecificheFluidoAlVolo() { salvaSpecificheFluidoAlVoloAsync(); }
-    async function salvaSpecificheFluidoAlVoloAsync() {
-        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
-        const qOlio = document.getElementById('quantitaOlio').value.trim();
-        const tOlio = document.getElementById('tipoOlio').value.trim();
-        const cOlio = document.getElementById('specificicaCostruttore').value.trim();
-        let specificheMappa = await leggiDato("garage_specifiche_olio") || {};
-        specificheMappa[veicoloAttivo] = { quantita: qOlio, tipo: tOlio, costruttore: cOlio };
-        await scriviDato("garage_specifiche_olio", specificheMappa);
-    }
-
-    function salvaNoteFuturiInterventiAlVolo() { salvaNoteFuturiInterventiAlVoloAsync(); }
-    async function salvaNoteFuturiInterventiAlVoloAsync() {
-        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
-        const testoNote = document.getElementById('noteFuturiInterventi').value;
-        let noteMappa = await leggiDato("garage_note_futuri_interventi") || {};
-        noteMappa[veicoloAttivo] = testoNote;
-        await scriviDato("garage_note_futuri_interventi", noteMappa);
-    }
-
-    function salvaFileResetService(input) {
-        if (!veicoloAttivo || !input.files || !input.files[0]) return;
-        const file = input.files[0];
-        const lettore = new FileReader();
-        
-        lettore.onload = async function(e) {
-            let fileData = {
-                tipo: file.type.startsWith('video/') ? 'video' : 'immagine',
-                content: e.target.result
-            };
-            let mappaReset = await leggiDato("garage_files_reset_service") || {};
-            mappaReset[veicoloAttivo] = fileData;
-            await scriviDato("garage_files_reset_service", mappaReset);
-            await mostraFileResetSeEsistente();
-            alert("File di reset service abbinato correttamente! ✅");
-        };
-        lettore.readAsDataURL(file);
-    }
-
-    async function mostraFileResetSeEsistente() {
-        const contenitore = document.getElementById('contenitoreAnteprimaReset');
-        const imgTag = document.getElementById('immagineAnteprimaReset');
-        const videoTag = document.getElementById('videoAnteprimaReset');
-        const btnDelete = document.getElementById('btnRimuoviReset');
-        if (!veicoloAttivo) return;
-
-        let mappaReset = await leggiDato("garage_files_reset_service") || {};
-        let fileData = mappaReset[veicoloAttivo];
-
-        if (fileData) {
-            contenitore.classList.remove('hidden');
-            btnDelete.classList.remove('hidden');
-            if (fileData.tipo === 'video') {
-                imgTag.classList.add('hidden'); imgTag.src = "";
-                videoTag.src = fileData.content; videoTag.classList.remove('hidden');
-            } else {
-                videoTag.classList.add('hidden'); videoTag.src = "";
-                imgTag.src = fileData.content; imgTag.classList.remove('hidden');
-            }
-        } else {
-            contenitore.classList.add('hidden');
-            imgTag.classList.add('hidden'); imgTag.src = "";
-            videoTag.classList.add('hidden'); videoTag.src = "";
-            btnDelete.classList.add('hidden');
-            document.getElementById('fileResetService').value = "";
-        }
-    }
-
-    async function cancellaFileResetDiretto() {
-        if (!veicoloAttivo || !confirm("Rimuovere il file delle istruzioni di reset?")) return;
-        let mappaReset = await leggiDato("garage_files_reset_service") || {};
-        delete mappaReset[veicoloAttivo];
-        await scriviDato("garage_files_reset_service", mappaReset);
-        await mostraFileResetSeEsistente();
-    }
-
-    async function eliminaVeicoloSelezionato() {
-        if (!veicoloAttivo) return;
-        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-        const nomeMezzo = mappaNomi[veicoloAttivo] || "questo veicolo";
-        if (!confirm(`Eliminare DEFINITIVAMENTE il veicolo "${nomeMezzo}"?`)) return;
-
-        delete mappaNomi[veicoloAttivo]; await scriviDato("garage_nomi_veicoli", mappaNomi);
-        let configKm = await leggiDato("garage_config_intervalli") || {}; delete configKm[veicoloAttivo]; await scriviDato("garage_config_intervalli", configKm);
-        let kmOggi = await leggiDato("garage_km_attuali") || {}; delete kmOggi[veicoloAttivo]; await scriviDato("garage_km_attuali", kmOggi);
-        let specificheOlio = await leggiDato("garage_specifiche_olio") || {}; delete specificheOlio[veicoloAttivo]; await scriviDato("garage_specifiche_olio", specificheOlio);
-        let fotoOlio = await leggiDato("garage_foto_bottiglie_olio") || {}; delete fotoOlio[veicoloAttivo]; await scriviDato("garage_foto_bottiglie_olio", fotoOlio);
-        let fotoLibretti = await leggiDato("garage_foto_libretti") || {}; delete fotoLibretti[veicoloAttivo]; await scriviDato("garage_foto_libretti", fotoLibretti);
-        let mappaImm = await leggiDato("garage_immatricolazioni") || {}; delete mappaImm[veicoloAttivo]; await scriviDato("garage_immatricolazioni", mappaImm);
-        let noteMappa = await leggiDato("garage_note_futuri_interventi") || {}; delete noteMappa[veicoloAttivo]; await scriviDato("garage_note_futuri_interventi", noteMappa);
-        let mappaReset = await leggiDato("garage_files_reset_service") || {}; delete mappaReset[veicoloAttivo]; await scriviDato("garage_files_reset_service", mappaReset);
-
-        let interventi = await leggiDato("interventi") || [];
-        interventi = interventi.filter(i => i.targa !== veicoloAttivo); await scriviDato("interventi", interventi);
-
-        const targheRimaste = Object.keys(mappaNomi);
-        if(targheRimaste.length > 0) { veicoloAttivo = targheRimaste[0]; modalitaNuovoVeicolo = false; } 
-        else { veicoloAttivo = ""; modalitaNuovoVeicolo = true; }
-        await aggiornaInterfaccia();
-    }
-
-    function cambiaCategoria(categoria) {
-        categoriaCorrente = categoria;
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-cat') === categoria);
-        });
-        document.querySelectorAll('.cat-content').forEach(section => section.classList.add('hidden'));
-        if (categoria === 'meccanica') document.getElementById('sezioneMeccanica').classList.remove('hidden');
-        if (categoria === 'burocrazia') document.getElementById('sezioneBurocrazia').classList.remove('hidden');
-        if (categoria === 'tecnico_fisso') document.getElementById('sezioneTecnicoFisso').classList.remove('hidden');
-    }
-
-    function comprimerESalvaImmagine(input, destinazione) {
-        if (!veicoloAttivo || !input.files || !input.files[0]) return;
-        const file = input.files[0];
-        const lettore = new FileReader();
-        
-        lettore.onload = function(e) {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = async function() {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const max_dim = 1200;
-                
-                if (width > height && width > max_dim) { height *= max_dim / width; width = max_dim; } 
-                else if (height > max_dim) { width *= max_dim / height; height = max_dim; }
-                
-                canvas.width = width;
-                canvas.height = height;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillRect(0, 0, width, height);
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                const base64Compresso = canvas.toDataURL('image/jpeg', 0.60);
-                
-                if (destinazione === 'libretto') {
-                    let mappa = await leggiDato("garage_foto_libretti") || {};
-                    mappa[veicoloAttivo] = base64Compresso;
-                    await scriviDato("garage_foto_libretti", mappa);
-                    await mostraFotoLibrettoSeEsistente();
-                } else if (destinazione === 'olio') {
-                    let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
-                    mappa[veicoloAttivo] = base64Compresso;
-                    await scriviDato("garage_foto_bottiglie_olio", mappa);
-                    await mostraFotoOlioSeEsistente();
-                }
-                alert("File multimediale salvato in memoria! ✅");
-            };
-        };
-        lettore.readAsDataURL(file);
-    }
-
-    async function mostraFotoLibrettoSeEsistente() {
-        const testoVuoto = document.getElementById('testoVuotoFoto');
-        const imgTag = document.getElementById('immagineAnteprima');
-        const btnDelete = document.getElementById('btnRimuoviFoto');
-        if (!veicoloAttivo) return;
-        
-        let mappa = await leggiDato("garage_foto_libretti") || {};
-        if (mappa[veicoloAttivo]) {
-            testoVuoto.classList.add('hidden'); 
-            imgTag.src = mappa[veicoloAttivo]; 
-            imgTag.classList.remove('hidden'); 
-            btnDelete.classList.remove('hidden');
-        } else {
-            testoVuoto.classList.remove('hidden'); 
-            imgTag.src = ""; 
-            imgTag.classList.add('hidden'); 
-            btnDelete.classList.add('hidden');
-            document.getElementById('fileLibretto').value = "";
-        }
-    }
-
-    async function cancellaFotoLibrettoDiretta() {
-        if (!veicoloAttivo || !confirm("Rimuovere la foto del libretto?")) return;
-        let mappa = await leggiDato("garage_foto_libretti") || {};
-        delete mappa[veicoloAttivo]; await scriviDato("garage_foto_libretti", mappa);
-        await mostraFotoLibrettoSeEsistente();
-    }
-
-    async function mostraFotoOlioSeEsistente() {
-        const contenitoreFotoOlio = document.getElementById('contenitoreAnteprimaOlio');
-        const imgTag = document.getElementById('immagineAnteprimaOlio');
-        const btnDelete = document.getElementById('btnRimuoviOlio');
-        if (!veicoloAttivo) return;
-        
-        let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
-        if (mappa[veicoloAttivo]) {
-            contenitoreFotoOlio.classList.remove('hidden'); 
-            imgTag.src = mappa[veicoloAttivo]; 
-            imgTag.classList.remove('hidden'); 
-            btnDelete.classList.remove('hidden');
-        } else {
-            contenitoreFotoOlio.classList.add('hidden'); 
-            imgTag.src = ""; 
-            imgTag.classList.add('hidden'); 
-            btnDelete.classList.add('hidden');
-            document.getElementById('fileBottiglia').value = "";
-        }
-    }
-
-    async function cancellaFotoOlioDiretta() {
-        if (!veicoloAttivo || !confirm("Rimuovere la foto delle specifiche dell'olio?")) return;
-        let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
-        delete mappa[veicoloAttivo]; await scriviDato("garage_foto_bottiglie_olio", mappa);
-        await mostraFotoOlioSeEsistente();
-    }
-
-    function apriImmagineSchermoIntero(src) {
-        const nuovaFinestra = window.open();
-        nuovaFinestra.document.write(`<img src="${src}" style="max-width:100%; height:auto; display:block; margin:0 auto;">`);
-    }
-
-    function salvaKmAttualiOggi() { salvaKmAttualiOggiAsync(); }
-    async function salvaKmAttualiOggiAsync() {
-        const valore = parseInt(document.getElementById('kmStrumentoOggi').value);
-        if(!veicoloAttivo || isNaN(valore)) return;
-        let kmMappa = await leggiDato("garage_km_attuali") || {};
-        kmMappa[veicoloAttivo] = valore; await scriviDato("garage_km_attuali", kmMappa);
-        const interventions = await leggiDato("interventi") || [];
-        await calcolaScadenzeFiltrate(interventions, veicoloAttivo);
-    }
-
-    function attivaNuovoVeicolo() {
-        modalitaNuovoVeicolo = true; veicoloAttivo = "";
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        gestisciVisibilitaCampi();
-    }
-
-    async function gestisciVisibilitaCampi() {
-        const bloccoAnagrafica = document.getElementById('bloccoAnagraficaVeicolo');
-        const campoIntervallo = document.getElementById('bloccoIntervalloKm');
-        const campoModello = document.getElementById('modello');
-        const campoTarga = document.getElementById('targa');
-        const titoloModuloMeccanico = document.getElementById('titoloModuloMeccanico');
-        const btnSalva = document.getElementById('btnSalva');
-        const boxKmOggi = document.getElementById('boxKmOggi');
-        const menuCategorie = document.getElementById('menuCategorie');
-        const btnEliminaVeicoloCorrente = document.getElementById('btnEliminaVeicoloCorrente');
-        const cardImmatricolazione = document.getElementById('cardImmatricolazione');
-        const bloccoNoteFuturo = document.getElementById('bloccoNoteFuturoSempreAttivo');
-        
-        const cardModuloMeccanica = document.getElementById('cardModuloRegistrazioneMeccanica');
-        const btnToggleMeccanico = document.getElementById('btnToggleModuloMeccanico');
-        
-        const cardModuloRevisione = document.getElementById('cardModuloRegistrazioneRevisione');
-        const btnToggleRevisione = document.getElementById('btnToggleModuloRevisione');
-        const cardModuloAssicurazione = document.getElementById('cardModuloRegistrazioneAssicurazione');
-        const btnToggleAssicurazione = document.getElementById('btnToggleModuloAssicurazione');
-        
-        const cardModuloSpecificheOlio = document.getElementById('cardModuloSpecificheOlio');
-        const btnToggleOlio = document.getElementById('btnToggleModuloOlio');
-        const cardModuloResetService = document.getElementById('cardModuloResetService');
-        const btnToggleReset = document.getElementById('btnToggleModuloReset');
-        const cardModuloFotoLibretto = document.getElementById('cardModuloFotoLibretto');
-        const btnToggleLibretto = document.getElementById('btnToggleModuloLibretto');
-
-        document.querySelectorAll('.cat-content').forEach(s => s.classList.add('hidden'));
-
-        if (modalitaNuovoVeicolo) {
-            bloccoAnagrafica.classList.remove('hidden'); campoIntervallo.classList.remove('hidden');
-            boxKmOggi.classList.add('hidden'); menuCategorie.classList.add('hidden');
-            cardImmatricolazione.classList.add('hidden'); btnEliminaVeicoloCorrente.classList.add('hidden');
-            bloccoNoteFuturo.classList.add('hidden');
-            
-            cardModuloMeccanica.classList.remove('hidden');
-            btnToggleMeccanico.classList.add('hidden');
-            
-            campoModello.required = true; campoTarga.required = true;
-            document.getElementById('quantitaOlio').value = "";
-            document.getElementById('tipoOlio').value = "";
-            document.getElementById('specificaCostruttore').value = "";
-            document.getElementById('noteFuturiInterventi').value = "";
-            document.getElementById('intervalloKm').value = "15000";
-            
-            titoloModuloMeccanico.innerText = "Registra Nuovo Veicolo";
-            btnSalva.innerText = "Crea Scheda Veicolo";
-            document.getElementById('statoTagliando').innerHTML = '<p style="text-align:center; color:#64748b;">Configura il nuovo veicolo inserendo i dati richiesti.</p>';
-            document.getElementById('listaTagliandi').innerHTML = '';
-            document.getElementById('titoloStato').innerText = "Stato Scadenze";
-            document.getElementById('sezioneMeccanica').classList.remove('hidden');
-        } else {
-            bloccoAnagrafica.classList.add('hidden'); campoIntervallo.classList.add('hidden');
-            boxKmOggi.classList.remove('hidden'); menuCategorie.classList.remove('hidden');
-            cardImmatricolazione.classList.remove('hidden'); btnEliminaVeicoloCorrente.classList.remove('hidden'); bloccoNoteFuturo.classList.remove('hidden');
-            
-            cardModuloMeccanica.classList.add('hidden');
-            btnToggleMeccanico.classList.remove('hidden');
-            btnToggleMeccanico.innerText = "➕ Apri modulo registrazione intervento";
-            btnToggleMeccanico.style.backgroundColor = "var(--primary)";
-
-            cardModuloRevisione.classList.add('hidden');
-            btnToggleRevisione.classList.remove('hidden');
-            btnToggleRevisione.innerText = "📋 Apri modulo registrazione revisione";
-            btnToggleRevisione.style.backgroundColor = "var(--purple)";
-
-            cardModuloAssicurazione.classList.add('hidden');
-            btnToggleAssicurazione.classList.remove('hidden');
-            btnToggleAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA";
-            btnToggleAssicurazione.style.backgroundColor = "#4f46e5";
-
-            cardModuloSpecificheOlio.classList.add('hidden');
-            btnToggleOlio.classList.remove('hidden');
-            btnToggleOlio.innerText = "🛢️ Specifiche e Foto Olio";
-            btnToggleOlio.style.backgroundColor = "var(--teal)";
-
-            cardModuloResetService.classList.add('hidden');
-            btnToggleReset.classList.remove('hidden');
-            btnToggleReset.innerText = "🔄 Istruzioni Reset Service";
-            btnToggleReset.style.backgroundColor = "#d97706";
-
-            cardModuloFotoLibretto.classList.add('hidden');
-            btnToggleLibretto.classList.remove('hidden');
-            btnToggleLibretto.innerText = "📄 Libretto Circolazione";
-            btnToggleLibretto.style.backgroundColor = "#0891b2";
-            
-            campoModello.required = false; campoTarga.required = false;
-            const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-            titoloModuloMeccanico.innerText = `Aggiungi Intervento Tecnico per ${mappaNomi[veicoloAttivo] || "Veicolo"}`;
-            btnSalva.innerText = `Salva Intervento`;
-            
-            document.getElementById('chkCambioOlioDefault').checked = false;
-            
-            let specificheMappa = await leggiDato("garage_specifiche_olio") || {};
-            let specificheMezzo = specificheMappa[veicoloAttivo] || { quantita: "", tipo: "", costruttore: "" };
-            document.getElementById('quantitaOlio').value = specificheMezzo.quantita || "";
-            document.getElementById('tipoOlio').value = specificheMezzo.tipo || "";
-            document.getElementById('specificaCostruttore').value = specificheMezzo.costruttore || "";
-
-            let noteMappa = await leggiDato("garage_note_futuri_interventi") || {};
-            document.getElementById('noteFuturiInterventi').value = noteMappa[veicoloAttivo] || "";
-
-            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
-            document.getElementById('intervalloKm').value = configurazioniMappa[veicoloAttivo] || "15000";
-
-            let mappaImm = await leggiDato("garage_immatricolazioni") || {};
-            document.getElementById('dataImmatricolazione').value = mappaImm[veicoloAttivo] || "";
-
-            await mostraFotoLibrettoSeEsistente(); 
-            await mostraFotoOlioSeEsistente();
-            await mostraFileResetSeEsistente();
-            await mostraFotoLibrettoRetroSeEsistente();
-
-            const kmMappa = await leggiDato("garage_km_attuali") || {};
-            document.getElementById('kmStrumentoOggi').value = kmMappa[veicoloAttivo] || "";
-            
-            cambiaCategoria(categoriaCorrente);
-        }
-    }
-
-    async function salvaIntervento(e) {
-        e.preventDefault();
-        const checkboxes = document.querySelectorAll('#listaLavori input[type="checkbox"]:checked');
-        const lavoriSelezionati = Array.from(checkboxes).map(cb => cb.value);
-        if (lavoriSelezionati.length === 0) { alert("Seleziona almeno un lavoro!"); return; }
-        
-        let modello, targa, intervalloKm;
-        let interventi = await leggiDato("interventi") || [];
-        intervalloKm = parseInt(document.getElementById('intervalloKm').value) || 15000;
-
-        if (modalitaNuovoVeicolo) {
-            modello = document.getElementById('modello').value.trim();
-            targa = document.getElementById('targa').value.toUpperCase().trim();
-            if (!modello || !targa || isNaN(intervalloKm)) return;
-
-            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
-            configurazioniMappa[targa] = intervalloKm; await scriviDato("garage_config_intervalli", configurazioniMappa);
-            let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-            mappaNomi[targa] = modello; await scriviDato("garage_nomi_veicoli", mappaNomi);
-            veicoloAttivo = targa;
-        } else {
-            let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-            modello = mappaNomi[veicoloAttivo] || "Veicolo"; targa = veicoloAttivo;
-            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
-            configurazioniMappa[veicoloAttivo] = intervalloKm; await scriviDato("garage_config_intervalli", configurazioniMappa);
-        }
-
-        const intervento = {
-            id: Date.now(), tipoRecord: 'meccanico', modello: modello, targa: targa, 
-            km: parseInt(document.getElementById('km').value), intervalloKm: intervalloKm, tipi: lavoriSelezionati, data: document.getElementById('data').value
-        };
-
-        interventi.push(intervento); await scriviDato("interventi", interventi);
-        modalitaNuovoVeicolo = false; document.getElementById('tagliandoForm').reset();
-        await aggiornaInterfaccia();
-    }
-
-    async function salvaRevisione(e) {
-        e.preventDefault(); if (!veicoloAttivo) return;
-        let interventi = await leggiDato("interventi") || [];
-        let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-        const revisione = {
-            id: Date.now(), tipoRecord: 'revisione', modello: mappaNomi[veicoloAttivo] || "Veicolo", targa: veicoloAttivo, data: document.getElementById('dataRevisione').value, tipi: ["Revisione Ministeriale"]
-        };
-        interventi.push(revisione); await scriviDato("interventi", interventi);
-        document.getElementById('dataRevisione').value = ""; await aggiornaInterfaccia();
-    }
-
-    async function salvaAssicurazione(e) {
-        e.preventDefault(); if (!veicoloAttivo) return;
-        let interventi = await leggiDato("interventi") || [];
-        let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-        const assicurazione = {
-            id: Date.now(), tipoRecord: 'assicurazione', modello: mappaNomi[veicoloAttivo] || "Veicolo", targa: veicoloAttivo, data: document.getElementById('dataAssicurazione').value, tipi: ["Polizza Assicurativa"]
-        };
-        interventi.push(assicurazione); await scriviDato("interventi", interventi);
-        document.getElementById('dataAssicurazione').value = ""; await aggiornaInterfaccia();
-    }
-
-    async function aggiornaInterfaccia() {
-        const interventi = await leggiDato("interventi") || [];
-        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
-        const targheUniche = Object.keys(mappaNomi);
-
-        if (targheUniche.length === 0) {
-            veicoloAttivo = ""; modalitaNuovoVeicolo = true; document.getElementById('tabsVeicoli').innerHTML = '';
-            await gestisciVisibilitaCampi(); return;
-        }
-
-        if (veicoloAttivo && !targheUniche.includes(veicoloAttivo)) veicoloAttivo = targheUniche[0];
-        if (!veicoloAttivo && targheUniche.length > 0) veicoloAttivo = targheUniche[0];
-
-        const containerTabs = document.getElementById('tabsVeicoli'); containerTabs.innerHTML = '';
-        targheUniche.forEach(targa => {
-            const btn = document.createElement('button');
-            btn.className = `tab-button ${(!modalitaNuovoVeicolo && targa === veicoloAttivo) ? 'active' : ''}`;
-            btn.innerText = `${mappaNomi[targa] || "Veicolo"} [${targa}]`;
-            btn.onclick = async () => { veicoloAttivo = targa; modalitaNuovoVeicolo = false; await aggiornaInterfaccia(); };
-            containerTabs.appendChild(btn);
-        });
-
-        if (!modalitaNuovoVeicolo && veicoloAttivo) {
-            await caricaStoriciFiltrati(interventi, veicoloAttivo);
-            await calcolaScadenzeFiltrate(interventi, veicoloAttivo);
-        }
-        await gestisciVisibilitaCampi();
-    }
-
-    async function caricaStoriciFiltrati(interventi, targaVeicolo) {
-        const listaTagliandi = document.getElementById('listaTagliandi');
-        const listaBurocrazia = document.getElementById('listaBurocrazia');
-        if(listaTagliandi) listaTagliandi.innerHTML = ''; if(listaBurocrazia) listaBurocrazia.innerHTML = '';
-
-        const filtrati = interventi.filter(i => i.targa === targaVeicolo);
-        filtrati.reverse().forEach(item => {
-            const dataFormattata = new Date(item.data).toLocaleDateString('it-IT');
-            const li = document.createElement('li'); li.onclick = () => apriModalModifica(item.id);
-            
-            if(item.tipoRecord === 'revisione') {
-                li.className = 'intervento-item revisione-item';
-                li.innerHTML = `<div><span class="tag-intervento tag-revisione">📋 Revisione Ministeriale</span></div><small>Effettuata: <strong>${dataFormattata}</strong></small>`;
-                if(listaBurocrazia) listaBurocrazia.appendChild(li);
-            } else if(item.tipoRecord === 'assicurazione') {
-                li.className = 'intervento-item assicurazione-item';
-                li.innerHTML = `<div><span class="tag-intervento tag-assicurazione">🛡️ Rinnovo RCA</span></div><small>Inizio copertura: <strong>${dataFormattata}</strong></small>`;
-                if(listaBurocrazia) listaBurocrazia.appendChild(li);
-            } else {
-                li.className = 'intervento-item';
-                const lavori = item.tipi || []; let tagHTML = lavori.map(lav => `<span class="tag-intervento">${lav}</span>`).join('');
-                li.innerHTML = `<div>${tagHTML}</div><small>Eseguito il: <strong>${dataFormattata}</strong> a Km: <strong>${(item.km || 0).toLocaleString('it-IT')}</strong></small>`;
-                if(listaTagliandi) listaTagliandi.appendChild(li);
-            }
-        });
-    }
-
-    async function apriModalModifica(id) {
-        idInterventoInModifica = id;
-        const interventi = await leggiDato("interventi") || [];
-        const intento = interventi.find(i => i.id === id);
-        if (!intento) return;
-
-        document.getElementById('infoVeicoloModifica').innerHTML = `Modello: <strong>${intento.modello}</strong> | Targa: <strong>${intento.targa}</strong>`;
-        document.getElementById('modalData').value = intento.data;
-
-        const rowKm = document.getElementById('modalFormRowKm');
-        const groupLavori = document.getElementById('modalFormGroupLavori');
-        const titoloModal = document.getElementById('titoloModalModifica');
-
-        if(intento.tipoRecord === 'revisione' || intento.tipoRecord === 'assicurazione') {
-            rowKm.classList.add('hidden'); groupLavori.classList.add('hidden');
-            titoloModal.innerText = intento.tipoRecord === 'revisione' ? "Modifica Revisione" : "Modifica Assicurazione";
-        } else {
-            rowKm.classList.remove('hidden'); groupLavori.classList.remove('hidden'); titoloModal.innerText = "Modifica Dati Controllo";
-            document.getElementById('modalKm').value = intento.km || 0;
-            const gridModifica = document.getElementById('listaLavoriModifica'); gridModifica.innerHTML = '';
-            elencoLavoriDisponibili.forEach(lavoro => {
-                const isChecked = (intento.tipi && intento.tipi.includes(lavoro)) ? 'checked' : '';
-                const label = document.createElement('label'); label.className = 'checkbox-item';
-                label.innerHTML = `<input type="checkbox" value="${lavoro}" ${isChecked}> ${lavoro}`;
-                gridModifica.appendChild(label);
-            });
-        }
-        document.getElementById('modalModifica').classList.remove('hidden');
-    }
-
-    function chiudiModal() { document.getElementById('modalModifica').classList.add('hidden'); idInterventoInModifica = null; }
-
-    async function eliminaInterventoSingolo() {
-        if (!idInterventoInModifica) return; if (!confirm("Eliminare record?")) return;
-        let interventi = await leggiDato("interventi") || [];
-        interventi = interventi.filter(i => i.id !== idInterventoInModifica); await scriviDato("interventi", interventi);
-        chiudiModal(); await aggiornaInterfaccia();
-    }
-
-    async function salvaModificheIntervento() {
-        const nuovaData = document.getElementById('modalData').value; if (!nuovaData) return;
-        let interventi = await leggiDato("interventi") || [];
-        const indice = interventi.findIndex(i => i.id === idInterventoInModifica);
-        if (indice !== -1) {
-            interventi[indice].data = nuovaData;
-            if(interventi[indice].tipoRecord !== 'revisione' && interventi[indice].tipoRecord !== 'assicurazione') {
-                interventi[indice].km = parseInt(document.getElementById('modalKm').value);
-                const checkboxes = document.querySelectorAll('#listaLavoriModifica input[type="checkbox"]:checked');
-                interventi[indice].tipi = Array.from(checkboxes).map(cb => cb.value);
-            }
-            await scriviDato("interventi", interventi);
-        }
-        chiudiModal(); await aggiornaInterfaccia();
-    }
-
-    async function calcolaScadenzeFiltrate(interventi, targaVeicolo) {
-        const display = document.getElementById('statoTagliando');
-        let htmlScadenze = ""; const oggi = new Date();
-
-        // Olio
-        const cambiOlio = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'meccanico' && i.tipi && i.tipi.includes('Cambio olio + filtro olio'));
-        if (cambiOlio.length === 0) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Olio Motore</div><div>Nessun cambio registrato nello storico.</div></div>`;
-        } else {
-            const ultimoCambio = cambiOlio[cambiOlio.length - 1];
-            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
-            const configKm = parseInt(configurazioniMappa[targaVeicolo]) || 15000; 
-            const kmScadenza = parseInt(ultimoCambio.km) + configKm;
-            
-            const kmMappa = await leggiDato("garage_km_attuali") || {};
-            const kmAttualiMezzo = kmMappa[targaVeicolo] !== undefined ? parseInt(kmMappa[targaVeicolo]) : parseInt(ultimoCambio.km);
-            const kmRimanenti = kmScadenza - kmAttualiMezzo;
-            
-            if (kmRimanenti <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ CAMBIO OLIO SCADUTO!</div><div>Fuori di ${Math.abs(kmRimanenti).toLocaleString('it-IT')} km.</div></div>`;
-            } else if (kmRimanenti < 2000) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Cambio olio in scadenza!</div><div>Mancano solo ${kmRimanenti.toLocaleString('it-IT')} km.</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>Olio Motore OK ✅</div><div>Scadenza a ${kmScadenza.toLocaleString('it-IT')} km (Mancano ${kmRimanenti.toLocaleString('it-IT')} km).</div></div>`;
-            }
-        }
-
-        // Revisione
-        const revisioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'revisione');
-        let mappaImm = await leggiDato("garage_immatricolazioni") || {};
-        let dataImmatricolazioneStringa = mappaImm[targaVeicolo];
-        if (revisioniEffettuate.length === 0 && !dataImmatricolazioneStringa) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>📋 Revisione Ministeriale</div><div>Inserisci la data di immatricolazione.</div></div>`;
-        } else {
-            let dataScadenzaGrezza; let prima = false;
-            if (revisioniEffettuate.length === 0) {
-                const dataImm = new Date(dataImmatricolazioneStringa);
-                dataScadenzaGrezza = new Date(dataImm.setFullYear(dataImm.getFullYear() + 4)); prima = true;
-            } else {
-                const ultimaRev = revisioniEffettuate[revisioniEffettuate.length - 1]; const dataUltimaRev = new Date(ultimaRev.data);
-                dataScadenzaGrezza = new Date(dataUltimaRev.setFullYear(dataUltimaRev.getFullYear() + 2));
-            }
-            
-            let dataScadenzaRev = new Date(dataScadenzaGrezza.getFullYear(), dataScadenzaGrezza.getMonth() + 1, 0);
-            const giorniRimanentiRev = Math.ceil((dataScadenzaRev - oggi) / (1000 * 60 * 60 * 24));
-            let tipoStato = prima ? "Prima Revisione OK ✅" : "Revisione Periodica OK ✅";
-            let tipoScaduto = prima ? "⚠️ PRIMA REVISIONE SCADUTA!" : "⚠️ REVISIONI PERIODICA SCADUTA!";
-            let tipoInScadenza = prima ? "📋 Prima Revisione in scadenza!" : "📋 Revisione Periodica in scadenza!";
-
-            if (giorniRimanentiRev <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>${tipoScaduto}</div><div>Scaduta il ${dataScadenzaRev.toLocaleDateString('it-IT')}!</div></div>`;
-            } else if (giorniRimanentiRev <= 30) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>${tipoInScadenza}</div><div>Mancano ${giorniRimanentiRev} giorni (Entro il: ${dataScadenzaRev.toLocaleDateString('it-IT')}).</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>${tipoStato}</div><div>Scadenza valida fino al: ${dataScadenzaRev.toLocaleDateString('it-IT')}</div></div>`;
-            }
-        }
-
-        // Assicurazione
-        const assicurazioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'assicurazione');
-        if (assicurazioniEffettuate.length === 0) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ Assicurazione RCA</div><div>Nessun rinnovo registrato.</div></div>`;
-        } else {
-            const ultimaAss = assicurazioniEffettuate[assicurazioniEffettuate.length - 1]; const dataUltimaAss = new Date(ultimaAss.data);
-            const dataScadenzaAss = new Date(dataUltimaAss.setFullYear(dataUltimaAss.getFullYear() + 1));
-            const giorniRimanentiAss = Math.ceil((dataScadenzaAss - oggi) / (1000 * 60 * 60 * 24));
-            
-            if (giorniRimanentiAss <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ POLIZZA RCA SCADUTA!</div><div>Scaduta il ${dataScadenzaAss.toLocaleDateString('it-IT')}!</div></div>`;
-            } else if (giorniRimanentiAss <= 15) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ RCA in scadenza!</div><div>Mancano solo ${giorniRimanentiAss} giorni.</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>Assicurazione RCA valida ✅</div><div>Scadenza: ${dataScadenzaAss.toLocaleDateString('it-IT')}</div></div>`;
-            }
-        }
-        display.innerHTML = htmlScadenze;
-    }
-
-    function comprimerESalvaImmagineRetro(input, destinazione) {
-        if (!veicoloAttivo || !input.files || !input.files[0]) return;
-        const file = input.files[0];
-        const lettore = new FileReader();
-        lettore.onload = function(e) {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = async function() {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const max_dim = 1200;
-                if (width > height && width > max_dim) { height *= max_dim / width; width = max_dim; } 
-                else if (height > max_dim) { width *= max_dim / height; height = max_dim; }
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillRect(0, 0, width, height);
-                ctx.drawImage(img, 0, 0, width, height);
-                const base64Compresso = canvas.toDataURL('image/jpeg', 0.60);
-                
-                let mappa = await leggiDato("garage_foto_libretti_retro") || {};
-                mappa[veicoloAttivo] = base64Compresso;
-                await scriviDato("garage_foto_libretti_retro", mappa);
-                await mostraFotoLibrettoRetroSeEsistente();
-                alert("Foto Retro salvata! ✅");
-            };
-        };
-        lettore.readAsDataURL(file);
-    }
-
-    async function mostraFotoLibrettoRetroSeEsistente() {
-        const testoVuoto = document.getElementById('testoVuotoFotoRetro');
-        const imgTag = document.getElementById('immagineAnteprimaRetro');
-        const btnDelete = document.getElementById('btnRimuoviFotoRetro');
-        if (!veicoloAttivo) return;
-        
-        let mappa = await leggiDato("garage_foto_libretti_retro") || {};
-        if (mappa[veicoloAttivo]) {
-            testoVuoto.classList.add('hidden'); 
-            imgTag.src = mappa[veicoloAttivo]; 
-            imgTag.classList.remove('hidden'); 
-            btnDelete.classList.remove('hidden');
-        } else {
-            testoVuoto.classList.remove('hidden'); 
-            imgTag.src = ""; 
-            imgTag.classList.add('hidden'); 
-            btnDelete.classList.add('hidden');
-        }
-    }
-
-    async function cancellaFotoLibrettoRetroDiretta() {
-        if (!veicoloAttivo || !confirm("Rimuovere la foto del libretto retro?")) return;
-        let mappa = await leggiDato("garage_foto_libretti_retro") || {};
-        delete mappa[veicoloAttivo]; 
-        await scriviDato("garage_foto_libretti_retro", mappa);
-        await mostraFotoLibrettoRetroSeEsistente();
-        alert("Foto retro eliminata! ✅");
-    }
-  
-async function svuotaDatabaseCompletamente() {
-    if (!confirm("Sei sicuro di voler CANCELLARE TUTTI i veicoli e i dati presenti nell'app? L'azione è irreversibile.")) return;
-    let tx = db.transaction("impostazioni", "readwrite");
-    let store = tx.objectStore("impostazioni");
-    store.clear();
-    tx.oncomplete = () => {
-        alert("Database svuotato con successo! ♻️");
-        location.reload();
-    };
-}
-
-async function esportaBackupJSON() {
-    let tx = db.transaction("impostazioni", "readonly");
-    let store = tx.objectStore("impostazioni");
-    let req = store.openCursor();
-    let backupDati = {};
-    req.onsuccess = function(e) {
-        let cursor = e.target.result;
-        if (cursor) {
-            backupDati[cursor.key] = cursor.value;
-            cursor.continue();
-        } else {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati));
-            const downloadAnchor = document.createElement('a');
-            const dataOggi = new Date().toISOString().slice(0,10);
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-    };
-}
-
-function importaBackupJSON(input) {
-    if (!input.files || !input.files[0]) return;
-    if (!confirm("Importando questo file sovrascriverai i dati attuali. Vuoi procedere?")) {
-        input.value = "";
-        return;
-    }
-    const file = input.files[0];
-    const lettore = new FileReader();
-    lettore.onload = async function(e) {
-        try {
-            const datiImportati = JSON.parse(e.target.result);
-            if (!db) {
-                alert("Errore: Archivio non pronto. Riprova tra un secondo.");
-                return;
-            }
-            let tx = db.transaction("impostazioni", "readwrite");
-            let store = tx.objectStore("impostazioni");
-            store.clear();
-            Object.keys(datiImportati).forEach(chiave => {
-                store.put(datiImportati[chiave], chiave);
-            });
-            tx.oncomplete = () => {
-                alert("Backup importato con successo! ✅");
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
-            };
-            tx.onerror = (err) => {
-                console.error("Errore transazione:", err);
-                alert("Errore durante il salvataggio dei dati nel database.");
-            };
-        } catch (errore) {
-            console.error("Errore parsing JSON:", errore);
-            alert("File non valido o corrotto. Assicurati che sia il file .json corretto.");
-            input.value = "";
-        }
-    };
-    lettore.readAsText(file);
-}
-
-// --- ATTIVAZIONE SERVICE WORKER PER PWA (GITHUB PAGES) ---
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/Smart-Garage/service-worker.js', { scope: '/Smart-Garage/' })
-            .then(reg => console.log('Service Worker Registrato con successo!', reg))
-            .catch(err => console.error('Errore SW:', err));
-    });
-
-   // --- FUNZIONI BOX 1: GESTIONE DATI ---
-    function eseguiBackup() {
-        console.log("Generazione backup in corso...");
-        alert("Backup generato internamente!");
-    }
-
-    function esportaConfigurazione() {
-        console.log("Esportazione file JSON...");
-        alert("File di configurazione scaricato!");
-    }
-
-    function importaConfigurazione() {
-        console.log("Apertura selezione file JSON...");
-        alert("Funzione di importazione attivata!");
-    }
-
-    // --- FUNZIONE BOX 2: RESET COMPLETO ---
-    function resetCompletoApp() {
-        // Un semplice ed elegante "confirm" nativo direttamente al click
-        const conferma = confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione e cancellerà tutti i dati dello Smart Garage. L'azione non è reversibile.");
-        
-        if (conferma) {
-            localStorage.clear();
-            alert("Applicazione resettata. La pagina verrà ricaricata.");
-            window.location.reload();
-        
-    }
-   }
-    
-</script>
-</body>
-</html>
+        inizial
