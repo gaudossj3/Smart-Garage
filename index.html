@@ -1409,56 +1409,71 @@ async function salvaAssicurazione(e) {
     }
 
     async function esportaBackupJSON() {
-    // 1. Chiediamo l'accesso a tutte e tre le tabelle del tuo database v2
-    let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readonly");
-    let backupDati = {
-        impostazioni: {},
-        veicoli: [],
-        interventi: []
-    };
-
-    // 2. Svuotiamo e raccogliamo i dati di ciascuna tabella
-    let storeImpostazioni = tx.objectStore("impostazioni");
-    let storeVeicoli = tx.objectStore("veicoli");
-    let storeInterventi = tx.objectStore("interventi");
-
-    // Leggiamo le Impostazioni
-    storeImpostazioni.openCursor().onsuccess = function(e) {
-        let cursor = e.target.result;
-        if (cursor) {
-            backupDati.impostazioni[cursor.key] = cursor.value;
-            cursor.continue();
+    try {
+        if (!db) {
+            alert("Errore: Database non pronto.");
+            return;
         }
-    };
 
-    // Leggiamo i Veicoli
-    storeVeicoli.getAll().onsuccess = function(e) {
-        backupDati.veicoli = e.target.result || [];
-    };
+        // Chiediamo l'accesso alle tabelle esistenti
+        let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readonly");
+        let backupDati = {
+            impostazioni: {},
+            veicoli: [],
+            interventi: []
+        };
 
-    // Leggiamo gli Interventi
-    storeInterventi.getAll().onsuccess = function(e) {
-        backupDati.interventi = e.target.result || [];
-    };
+        let storeImpostazioni = tx.objectStore("impostazioni");
+        let storeVeicoli = tx.objectStore("veicoli");
+        let storeInterventi = tx.objectStore("interventi");
 
-    // 3. Quando la transazione ha finito di leggere tutto con successo, scarica il file
-    tx.oncomplete = function() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
-        const downloadAnchor = document.createElement('a');
-        const dataOggi = new Date().toISOString().slice(0,10);
-        
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    };
+        // Raccogliamo le Impostazioni
+        storeImpostazioni.openCursor().onsuccess = function(e) {
+            let cursor = e.target.result;
+            if (cursor) {
+                backupDati.impostazioni[cursor.key] = cursor.value;
+                cursor.continue();
+            }
+        };
 
-    tx.onerror = function(err) {
-        console.error("Errore durante la creazione del backup:", err);
-    };
+        // Raccogliamo i Veicoli (gestendo l'eventuale tabella vuota)
+        storeVeicoli.getAll().onsuccess = function(e) {
+            backupDati.veicoli = e.target.result || [];
+        };
+
+        // Raccogliamo gli Interventi (gestendo l'eventuale tabella vuota)
+        storeInterventi.getAll().onsuccess = function(e) {
+            backupDati.interventi = e.target.result || [];
+        };
+
+        // Quando la transazione ha letto tutto con successo, avvia il download
+        tx.oncomplete = function() {
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
+                const downloadAnchor = document.createElement('a');
+                const dataOggi = new Date().toISOString().slice(0,10);
+                
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch (errJson) {
+                console.error("Errore durante la generazione del file JSON:", errJson);
+                alert("Errore nella creazione del file di backup.");
+            }
+        };
+
+        tx.onerror = function(err) {
+            console.error("Errore nella transazione di backup:", err);
+            alert("Impossibile leggere i dati per il backup. Assicurati che il database sia attivo.");
+        };
+
+    } catch (erroreGenerale) {
+        console.error("Errore generale della funzione di esportazione:", erroreGenerale);
+        alert("Si è verificato un errore imprevisto durante l'esportazione.");
+    }
 }
-
     function importaBackupJSON(input) {
     if (!input.files || !input.files[0]) return;
     if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
