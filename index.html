@@ -322,7 +322,7 @@
                 <div class="form-group">
                     <label>Lavori Eseguiti</label>
                     <div class="checkbox-grid" id="listaLavori">
-                        <label class="checkbox-item"><input type="checkbox" id="chkCambioOlioDefault" value="Cambio olio + filtro olio"> Cambio olio + filtro olio</label>
+                        <label class="checkbox-item" for="chkCambioOlioDefault"><input type="checkbox" id="chkCambioOlioDefault" value="Cambio olio + filtro olio"> Cambio olio + filtro olio</label>
                         <label class="checkbox-item"><input type="checkbox" value="Filtro abitacolo"> Filtro abitacolo</label>
                         <label class="checkbox-item"><input type="checkbox" value="Filtro Aria"> Filtro Aria</label>
                         <label class="checkbox-item"><input type="checkbox" value="Candele"> Candele</label>
@@ -444,7 +444,8 @@
             <div class="card hidden" id="cardModuloFotoLibretto" style="margin-top: 5px; margin-bottom: 5px;">
                 <h2 style="color: #0891b2; text-align: left; margin-top:0;">Libretto Circolazione</h2>
                 <div class="form-group">
-                    <label for="fileLibretto">Carica Foto Fronte</label>
+                    <label for="fileLibretto">
+                        Carica Foto Fronte
                     <input type="file" id="fileLibretto" accept="image/*" onchange="comprimerESalvaImmagine(this, 'libretto')">
                 </div>
                 <div class="preview-doc-container" id="contenitoreAnteprima">
