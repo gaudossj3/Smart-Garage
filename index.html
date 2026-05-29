@@ -1481,9 +1481,13 @@ async function salvaAssicurazione(e) {
     }
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js', { scope: './' })
-            .then(reg => console.log('Service Worker Registrato con successo!', reg))
-            .catch(err => console.error('Errore SW:', err));
+        navigator.serviceWorker.register('./service-worker.js')
+            .then((reg) => {
+                console.log('Service Worker registrato con successo!', reg.scope);
+            })
+            .catch((err) => {
+                console.error('Errore nella registrazione del Service Worker:', err);
+            });
     });
 }
     
