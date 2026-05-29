@@ -1439,7 +1439,7 @@ async function salvaAssicurazione(e) {
             return;
         }
 
-        // Chiediamo l'accesso SOLO alle due tabelle realmente esistenti
+        // Apriamo la transazione sulle tabelle esistenti
         let tx = db.transaction(["impostazioni", "interventi"], "readonly");
         let backupDati = {
             impostazioni: {},
@@ -1449,35 +1449,49 @@ async function salvaAssicurazione(e) {
         let storeImpostazioni = tx.objectStore("impostazioni");
         let storeInterventi = tx.objectStore("interventi");
 
-        // Raccogliamo le Impostazioni
-        storeImpostazioni.openCursor().onsuccess = function(e) {
-            let cursor = e.target.result;
-            if (cursor) {
-                backupDati.impostazioni[cursor.key] = cursor.value;
-                cursor.continue();
-            }
-        };
+        // Avviamo il recupero totale e simultaneo di chiavi e valori
+        let reqChiavi = storeImpostazioni.getAllKeys();
+        let reqValori = storeImpostazioni.getAll();
+        let reqInterventi = storeInterventi.getAll();
 
-        // Raccogliamo gli Interventi
-        storeInterventi.getAll().onsuccess = function(e) {
-            backupDati.interventi = e.target.result || [];
-        };
-
-        // Quando la transazione ha finito di leggere tutto, avvia il download
+        // Il download parte SOLO quando la transazione ha estratto TUTTI i dati in memoria
         tx.oncomplete = function() {
+            let chiavi = reqChiavi.result || [];
+            let valori = reqValori.result || [];
+            
+            chiavi.forEach((chiave, indice) => {
+                backupDati.impostazioni[chiave] = valori[indice];
+            });
+
+            backupDati.interventi = reqInterventi.result || [];
+
             try {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
+                // Trasformiamo i dati in stringa JSON
+                const jsonString = JSON.stringify(backupDati);
+                
+                // FIX CRITICO: Usiamo un Blob nativo per gestire file pesanti senza troncarli
+                const blob = new Blob([jsonString], { type: "application/json;charset=utf-8" });
+                const urlURL = URL.createObjectURL(blob);
+                
                 const downloadAnchor = document.createElement('a');
                 const dataOggi = new Date().toISOString().slice(0,10);
                 
-                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("href", urlURL);
                 downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
                 document.body.appendChild(downloadAnchor);
+                
+                // Avvia il download salvando il file intero
                 downloadAnchor.click();
-                downloadAnchor.remove();
+                
+                // Pulizia immediata della memoria del browser
+                setTimeout(() => {
+                    downloadAnchor.remove();
+                    URL.revokeObjectURL(urlURL);
+                }, 100);
+                
             } catch (errJson) {
                 console.error("Errore generazione JSON:", errJson);
-                alert("Errore nella creazione del file di backup.");
+                alert("Errore nella creazione del file. I dati inseriti sono troppo pesanti.");
             }
         };
 
