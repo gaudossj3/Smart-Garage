@@ -1439,37 +1439,40 @@ async function salvaAssicurazione(e) {
             return;
         }
 
-        // Apriamo la transazione sulle tabelle esistenti
         let tx = db.transaction(["impostazioni", "interventi"], "readonly");
         let backupDati = {
             impostazioni: {},
             interventi: []
         };
 
-        let storeImpostazioni = tx.objectStore("impostazioni");
-        let storeInterventi = tx.objectStore("interventi");
+        let storeImp = tx.objectStore("impostazioni");
+        let storeInt = tx.objectStore("interventi");
 
-        // Avviamo il recupero totale e simultaneo di chiavi e valori
-        let reqChiavi = storeImpostazioni.getAllKeys();
-        let reqValori = storeImpostazioni.getAll();
-        let reqInterventi = storeInterventi.getAll();
+        let reqChiavi = storeImp.getAllKeys();
+        let reqValori = storeImp.getAll();
+        let reqInterventi = storeInt.getAll();
 
-        // Il download parte SOLO quando la transazione ha estratto TUTTI i dati in memoria
         tx.oncomplete = function() {
             let chiavi = reqChiavi.result || [];
             let valori = reqValori.result || [];
             
             chiavi.forEach((chiave, indice) => {
-                backupDati.impostazioni[chiave] = valori[indice];
+                // Evitiamo di duplicare la chiave "interventi" dentro le impostazioni
+                if (chiave !== "interventi") {
+                    backupDati.impostazioni[chiave] = valori[indice];
+                }
             });
 
-            backupDati.interventi = reqInterventi.result || [];
+            // Se nel vecchio backup gli interventi erano finiti dentro le impostazioni, li recuperiamo da lì
+            if (reqInterventi.result && reqInterventi.result.length > 0) {
+                backupDati.interventi = reqInterventi.result;
+            } else if (backupDati.impostazioni.interventi) {
+                backupDati.interventi = backupDati.impostazioni.interventi;
+                delete backupDati.impostazioni.interventi;
+            }
 
             try {
-                // Trasformiamo i dati in stringa JSON
                 const jsonString = JSON.stringify(backupDati);
-                
-                // FIX CRITICO: Usiamo un Blob nativo per gestire file pesanti senza troncarli
                 const blob = new Blob([jsonString], { type: "application/json;charset=utf-8" });
                 const urlURL = URL.createObjectURL(blob);
                 
@@ -1479,33 +1482,29 @@ async function salvaAssicurazione(e) {
                 downloadAnchor.setAttribute("href", urlURL);
                 downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
                 document.body.appendChild(downloadAnchor);
-                
-                // Avvia il download salvando il file intero
                 downloadAnchor.click();
                 
-                // Pulizia immediata della memoria del browser
                 setTimeout(() => {
                     downloadAnchor.remove();
                     URL.revokeObjectURL(urlURL);
                 }, 100);
-                
             } catch (errJson) {
                 console.error("Errore generazione JSON:", errJson);
-                alert("Errore nella creazione del file. I dati inseriti sono troppo pesanti.");
+                alert("Errore nella compressione dei dati. File troppo pesante.");
             }
         };
 
         tx.onerror = function(err) {
-            console.error("Errore nella transazione di backup:", err);
+            console.error("Errore nel backup:", err);
             alert("Impossibile leggere i dati per il backup.");
         };
 
     } catch (erroreGenerale) {
-        console.error("Errore generale della funzione di esportazione:", erroreGenerale);
-        alert("Si è verificato un errore imprevisto durante l'esportazione.");
+        console.error("Errore generale esportazione:", erroreGenerale);
     }
 }
-    function importaBackupJSON(input) {
+
+function importaBackupJSON(input) {
     if (!input.files || !input.files[0]) return;
     if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
         input.value = "";
@@ -1513,37 +1512,42 @@ async function salvaAssicurazione(e) {
     }
     const file = input.files[0];
     const lettore = new FileReader();
+    
     lettore.onload = async function(e) {
         try {
             const datiImportati = JSON.parse(e.target.result);
             if (!db) {
-                alert("Errore: Archivio non pronto. Riprova.");
+                alert("Errore: Archivio non pronto.");
                 return;
             }
             
-            // Apriamo la transazione SOLO sulle due tabelle reali
             let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
-
             let storeImp = tx.objectStore("impostazioni");
             let storeInt = tx.objectStore("interventi");
 
-            // Svuotiamo i vecchi dati per evitare duplicati
             storeImp.clear();
             storeInt.clear();
 
-            // 1. Ripristiniamo le Impostazioni (che contengono anche i nomi dei veicoli)
+            // 1. Ripristino delle Impostazioni
             if (datiImportati.impostazioni) {
                 Object.keys(datiImportati.impostazioni).forEach(chiave => {
-                    storeImp.put(datiImportati.impostazioni[chiave], chiave);
+                    if (chiave !== "interventi") {
+                        storeImp.put(datiImportati.impostazioni[chiave], chiave);
+                    }
                 });
             }
 
-            // 2. Ripristiniamo gli Interventi
+            // 2. Ripristino degli Interventi (Corretto e Compatibile)
+            let listaInterventi = [];
             if (Array.isArray(datiImportati.interventi)) {
-                datiImportati.interventi.forEach(intervento => {
-                    storeInt.put(intervento);
-                });
+                listaInterventi = datiImportati.interventi;
+            } else if (datiImportati.impostazioni && Array.isArray(datiImportati.impostazioni.interventi)) {
+                listaInterventi = datiImportati.impostazioni.interventi;
             }
+
+            listaInterventi.forEach(intervento => {
+                storeInt.put(intervento);
+            });
             
             tx.oncomplete = function() {
                 alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
