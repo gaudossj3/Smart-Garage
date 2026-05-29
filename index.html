@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage Multiveicolo Smart</title>
+    <link rel="icon" href="data:,">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+            --teal: #0d9488;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--primary); margin-top: 10px; white-space: nowrap; font-size: 22px; }
+        h2 { font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 15px; }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tabs-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .tabs-container { display: flex; gap: 8px; overflow-x: auto; width: 100%; -ms-overflow-style: none; scrollbar-width: none; }
+        .tabs-container::-webkit-scrollbar { display: none; }
+        
+        .tab-button {
+            background: #e2e8f0; color: #64748b; border: none; padding: 10px 16px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; white-space: nowrap;
+        }
+        .tab-button.active { background: var(--primary); color: white; }
+        
+        .btn-add-vehicle {
+            background: #22c55e; color: white; border: none; padding: 10px 16px;
+            border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer;
+            align-self: flex-start;
+        }
+
+        .category-menu { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .category-btn {
+            background: white; border: 2px solid #cbd5e1; padding: 12px 4px;
+            border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px;
+            color: #475569; text-align: center;
+        }
+        .category-btn.active[data-cat="meccanica"] { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+        .category-btn.active[data-cat="burocrazia"] { border-color: var(--purple); color: var(--purple); background: #f5f3ff; }
+        .category-btn.active[data-cat="tecnico_fisso"] { border-color: var(--teal); color: var(--teal); background: #f0fdfa; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .form-row .form-group { flex: 1; margin-bottom: 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        textarea { font-family: inherit; resize: vertical; min-height: 70px; }
+
+        .km-inline-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .km-inline-container label { margin-bottom: 0; white-space: nowrap; }
+        .km-inline-container input { max-width: 140px; padding: 8px 10px; }
+
+        .pulsantiera-verticale {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-toggle-modulo {
+            width: 100%; color: white; border: none; padding: 12px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 0;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-toggle-modulo.btn-blue { background-color: var(--primary); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .btn-toggle-modulo.btn-purple { background-color: var(--purple); box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2); }
+        .btn-toggle-modulo.btn-teal { background-color: var(--teal); box-shadow: 0 2px 4px rgba(13, 148, 136, 0.2); }
+        .btn-toggle-modulo.btn-amber { background-color: #d97706; box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2); }
+
+        .sezione-promemoria-olio-completa { display: flex; gap: 12px; margin-top: 10px; align-items: stretch; }
+        .contenitore-anteprima-olio-compatto {
+            width: 85px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px;
+            position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+            min-height: 90px;
+        }
+        .anteprima-olio-img-compatta { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+
+        .preview-doc-container {
+            margin-top: 10px; text-align: center; background: #f8fafc; border: 2px dashed #cbd5e1;
+            border-radius: 8px; padding: 10px; position: relative; min-height: 90px;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .preview-doc-img, .preview-doc-video { max-width: 100%; max-height: 220px; border-radius: 6px; cursor: pointer; }
+        .btn-delete-photo {
+            position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9);
+            color: white; border: none; border-radius: 50%; width: 22px; height: 22px;
+            font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        
+        .checkbox-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc;
+            padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; max-height: 180px; overflow-y: auto;
+        }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+        .checkbox-item input { width: auto; cursor: pointer; }
+
+        button.btn-submit {
+            width: 100%; color: white; border: none; padding: 12px; border-radius: 6px;
+            font-size: 15px; cursor: pointer; font-weight: bold; margin-top: 5px;
+        }
+        .btn-blue { background-color: var(--primary); }
+        .btn-purple { background-color: var(--purple); }
+        .btn-teal { background-color: var(--teal); }
+        
+        .interventi-list { list-style: none; padding: 0; margin: 0; }
+        .intervento-item {
+            background: #f1f5f9; padding: 12px; border-radius: 6px; margin-bottom: 10px;
+            border-left: 4px solid var(--primary); cursor: pointer; font-size: 14px;
+        }
+        .intervento-item.revisione-item { border-left-color: var(--purple); }
+        .intervento-item.assicurazione-item { border-left-color: #6366f1; }
+        .tag-intervento { display: inline-block; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin: 2px; }
+        .tag-intervento.tag-revisione { background: #f3e8ff; color: #6b21a8; }
+        .tag-intervento.tag-assicurazione { background: #e0e7ff; color: #3730a3; }
+        
+        .scadenza-container { display: flex; flex-direction: column; gap: 8px; }
+        .scadenza-box { padding: 10px 12px; border-radius: 8px; text-align: left; font-size: 14px; line-height: 1.4; }
+        .scadenza-box div:first-child { font-weight: bold; font-size: 14px; }
+        .scadenza-box div:last-child { font-size: 12px; margin-top: 2px; opacity: 0.9; }
+
+        .status-ok { background-color: #dcfce7; color: #166534; border: 1px solid var(--success); }
+        .status-warning { background-color: #fef3c7; color: #92400e; border: 1px solid var(--warning); }
+        .status-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid var(--danger); }
+        
+        .btn-danger-outline {
+            background: transparent; border: 2px solid var(--danger); color: var(--danger);
+            padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
+            margin-top: 30px; margin-bottom: 10px;
+        }
+        .hidden { display: none !important; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+            justify-content: center; z-index: 1000; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background: white; padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); width: 100%; max-width: 500px;
+            max-height: 90vh; overflow-y: auto; position: relative; animation: popIn 0.2s ease-out;
+        }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-delete { background: transparent; border: 2px solid var(--danger); color: var(--danger); width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .settings-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+
+        .settings-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .card-danger {
+            
+        }
+        
+        .card-danger h3 {
+            color: #e53e3e;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        @media(min-width: 400px) {
+            .buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .btn {
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-align: center;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-export { background-color: #2563eb; color: white; }
+        .btn-export:hover { background-color: #1d4ed8; }
+
+        .btn-import { background-color: #378b66; color: white; }
+        .btn-import:hover { background-color: #2b6d50; }
+
+        .btn-reset {
+            background-color: #e53e3e;
+            color: white;
+            width: 100%;
+            padding: 12px;
+        }
+        .btn-reset:hover { background-color: #c53030; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚗 Garage Multiveicolo Smart</h1>
+
+    <div class="tabs-wrapper">
+        <button class="btn-add-vehicle" id="btnNuovoVeicolo">Crea nuova scheda veicolo</button>
+        <div class="tabs-container" id="tabsVeicoli"></div>
+    </div>
+
+    <div class="card">
+        <h2 id="titoloStato" style="text-align: left; color: var(--primary); margin-top:0;">Stato Scadenze Attive</h2>
+        <div class="scadenza-container" id="statoTagliando"></div>
+    </div>
+
+    <div id="boxKmOggi" class="card hidden" style="padding: 15px;">
+        <div class="km-inline-container">
+            <label for="kmStrumentoOggi"><strong>Km totali ad OGGI:</strong></label>
+            <input type="number" id="kmStrumentoOggi" placeholder="Es. 92000">
+        </div>
+        
+        <div id="bloccoNoteFuturoSempreAttivo" style="border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+            <label for="noteFuturiInterventi" style="color: #b91c1c; font-size: 13px; margin-bottom: 5px;"><strong>📋 Promemoria Prossimi Lavori:</strong></label>
+            <textarea id="noteFuturiInterventi" placeholder="Es. Al prossimo tagliando cambiare le pastiglie anteriori." oninput="salvaNoteFuturiInterventiAlVolo()" style="background: #fff5f5; border-color: #fca5a5; min-height: 50px; padding: 6px;"></textarea>
+        </div>
+    </div>
+    
+    <div class="category-menu hidden" id="menuCategorie">
+        <div class="category-btn active" data-cat="meccanica" onclick="cambiaCategoria('meccanica')">🔧 Manutenzione</div>
+        <div class="category-btn" data-cat="burocrazia" onclick="cambiaCategoria('burocrazia')">📄 Scadenze e Polizze</div>
+        <div class="category-btn" data-cat="tecnico_fisso" onclick="cambiaCategoria('tecnico_fisso')">⚙️ Dati Tecnici</div>
+    </div>
+
+    <div id="sezioneMeccanica" class="cat-content hidden">
+        <div class="pulsantiera-verticale">
+            <button type="button" class="btn-toggle-modulo btn-blue" id="btnToggleModuloMeccanico" onclick="toggleModuloScomparsa('meccanica')">➕ Apri modulo registrazione intervento</button>
+        </div>
+
+        <div class="card hidden" id="cardModuloRegistrazioneMeccanica">
+            <h2 id="titoloModuloMeccanico" style="color: var(--primary); text-align: left; margin-top:0;">Registra Intervento Tecnico</h2>
+            <form id="tagliandoForm">
+                <div id="bloccoAnagraficaVeicolo">
+                    <div class="form-group">
+                        <label for="modello">Modello Veicolo</label>
+                        <input type="text" id="modello" placeholder="Es. Golf 6 / Skoda Fabia">
+                    </div>
+                    <div class="form-group">
+                        <label for="targa">Targa / Identificativo</label>
+                        <input type="text" id="targa" placeholder="Es. AB123CD" style="text-transform: uppercase;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="data">Data Intervento</label>
+                    <input type="date" id="data" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="km">Km dell'intervento</label>
+                        <input type="number" id="km" placeholder="Km letti sul contachilometri" required>
+                    </div>
+                </div>
+                <div class="form-row" id="bloccoIntervalloKm">
+                    <div class="form-group">
+                        <label for="intervalloKm">Intervallo Cambio Olio (Km)</label>
+                        <input type="number" id="intervalloKm" value="15000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Lavori Eseguiti</label>
+                    <div class="checkbox-grid" id="listaLavori">
+                        <label class="checkbox-item"><input type="checkbox" id="chkCambioOlioDefault" value="Cambio olio + filtro olio"> Cambio olio + filtro olio</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Filtro abitacolo"> Filtro abitacolo</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Filtro Aria"> Filtro Aria</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Candele"> Candele</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Pastiglie"> Pastiglie</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Dischi freni"> Dischi freni</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Filtro gasolio"> Filtro gasolio</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Filtro benzina"> Filtro benzina</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Sostituzione Batteria"> Sostituzione Batteria</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Sostituzione Gomme"> Sostituzione Gomme</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Inversione gomme"> Inversione gomme</label>
+                        <label class="checkbox-item"><input type="checkbox" value="Distribuzione"> Distribuzione</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit btn-blue" id="btnSalva">Salva Intervento</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 style="text-align: left; color: var(--primary); margin-top:0;">Storico Interventi Tecnici</h2>
+            <ul id="listaTagliandi" class="interventi-list"></ul>
+        </div>
+    </div>
+
+<div id="sezioneBurocrazia" class="cat-content hidden">
+    <div class="card" id="cardImmatricolazione">
+        <h2 style="color: var(--purple); text-align: left; margin-top:0;">Dati di Fabbrica del Veicolo</h2>
+        <div class="form-group" style="margin-bottom:0;">
+            <label for="dataImmatricolazione">Data di prima Immatricolazione (Da Libretto)</label>
+            <input type="date" id="dataImmatricolazione" onchange="salvaDataImmatricolazioneAlVolo()">
+            <small style="color:#64748b; margin-top:4px; display:block;">Serve per calcolare la primissima revisione obbligatoria dopo 4 anni.</small>
+        </div>
+    </div>
+
+    <div class="pulsantiera-verticale" style="margin-bottom: 10px;">
+        <button type="button" class="btn-toggle-modulo btn-purple" id="btnToggleModuloRevisione" onclick="toggleModuloScomparsa('revisioni')">📋 Apri modulo registrazione revisione</button>
+    </div>
+    <div class="card hidden" id="cardModuloRegistrazioneRevisione" style="margin-bottom: 20px;">
+        <h2 style="color: var(--purple); text-align: left; margin-top:0;">Registra Nuova Revisione</h2>
+        <form id="revisioneForm">
+            <div class="form-group">
+                <label for="dataRevisione">Data dell'esame in officina</label>
+                <input type="date" id="dataRevisione" required>
+            </div>
+            <button type="submit" class="btn-submit btn-purple">Registra Revisione</button>
+        </form>
+    </div>
+
+    <div class="pulsantiera-verticale" style="margin-bottom: 10px;">
+        <button type="button" class="btn-toggle-modulo btn-purple" id="btnToggleModuloAssicurazione" style="background-color:#4f46e5;" onclick="toggleModuloScomparsa('assicurazioni')">🛡️ Apri modulo rinnovo polizza RCA</button>
+    </div>
+    <div class="card hidden" id="cardModuloRegistrazioneAssicurazione" style="margin-bottom: 20px;">
+        <h2 style="color: #4f46e5; text-align: left; margin-top:0;">Registra Rinnovo Assicurazione</h2>
+        <form id="assicurazioneForm">
+            <div class="form-group">
+                <label for="dataAssicurazione">Data Decorrenza / Pagamento Polizza</label>
+                <input type="date" id="dataAssicurazione" required>
+            </div>
+            <button type="submit" class="btn-submit" style="background-color:#4f46e5;">Registra Assicurazione</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2 style="text-align: left; color: var(--purple); margin-top:0;">Storico Certificati e Polizze</h2>
+        <ul id="listaBurocrazia" class="interventi-list"></ul>
+    </div>
+</div>
+
+    <div id="sezioneTecnicoFisso" class="cat-content hidden">
+        <div class="pulsantiera-verticale">
+            <button type="button" class="btn-toggle-modulo btn-teal" id="btnToggleModuloOlio" onclick="toggleModuloScomparsa('specifiche_olio')">🛢️ Gestisci Specifiche e Foto Olio</button>
+            
+            <div class="card hidden" id="cardModuloSpecificheOlio" style="background: #eff6ff; border: 1px solid #bfdbfe; margin-top: 5px; margin-bottom: 5px;">
+                <h3 style="margin-top:0; font-size:15px; color: #1e40af; border-bottom: 1px dashed #bfdbfe; padding-bottom: 4px; margin-bottom: 10px;">Specifiche Olio Motore</h3>
+                <div class="sezione-promemoria-olio-completa">
+                    <div style="flex: 1;">
+                        <div class="form-row" style="margin-bottom: 6px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="quantitaOlio" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Capacità Coppa (Litri)</label>
+                                <input type="text" id="quantitaOlio" placeholder="Es. 4.3" oninput="salvaSpecificheFluidoAlVolo()" style="padding: 6px; font-size: 13px;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="tipoOlio" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Gradazione Viscosità</label>
+                                <input type="text" id="tipoOlio" placeholder="Es. 5W-30" oninput="salvaSpecificheFluidoAlVolo()" style="padding: 6px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="specificicaCostruttore" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Specifica Costruttore</label>
+                            <input type="text" id="specificicaCostruttore" placeholder="Es. VW 507.00" oninput="salvaSpecificheFluidoAlVolo()" style="padding: 6px; font-size: 13px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="fileBottiglia" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Aggiorna Foto Bottiglia</label>
+                            <input type="file" id="fileBottiglia" accept="image/*" onchange="comprimerESalvaImmagine(this, 'olio')" style="padding: 4px; font-size: 12px;">
+                        </div>
+                    </div>
+                    <div class="contenitore-anteprima-olio-compatto hidden" id="contenitoreAnteprimaOlio">
+                        <img src="" class="anteprima-olio-img-compatta hidden" id="immagineAnteprimaOlio" onclick="apriImmagineSchermoIntero(this.src)">
+                        <button type="button" class="btn-delete-photo hidden" id="btnRimuoviOlio" onclick="cancellaFotoOlioDiretta()">×</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-toggle-modulo btn-amber" id="btnToggleModuloReset" onclick="toggleModuloScomparsa('reset_service')">🔄 Apri istruzioni Reset Service</button>
+            
+            <div class="card hidden" id="cardModuloResetService" style="background: #fdf6b2; border: 1px solid #fca5a5; margin-top: 5px; margin-bottom: 5px;">
+                <h3 style="margin-top:0; font-size:15px; color: #92400e; border-bottom: 1px dashed #fcd34d; padding-bottom: 4px; margin-bottom: 10px;">🔄 Procedura Azzeramento Service</h3>
+                <div class="form-group">
+                    <label for="fileResetService" style="color: #92400e; font-size: 12px;">Carica una foto guida o una clip video del reset spia:</label>
+                    <input type="file" id="fileResetService" accept="image/*,video/*" onchange="salvaFileResetService(this)" style="padding: 4px; font-size: 13px;">
+                </div>
+                <div class="preview-doc-container hidden" id="contenitoreAnteprimaReset">
+                    <img src="" class="preview-doc-img hidden" id="immagineAnteprimaReset" onclick="apriImmagineSchermoIntero(this.src)">
+                    <video src="" class="preview-doc-video hidden" id="videoAnteprimaReset" controls></video>
+                    <button type="button" class="btn-delete-photo hidden" id="btnRimuoviReset" onclick="cancellaFileResetDiretto()">×</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn-toggle-modulo btn-blue" id="btnToggleModuloLibretto" style="background-color:#0891b2;" onclick="toggleModuloScomparsa('foto_libretto')">📄 Gestisci Foto Libretto Circolazione</button>
+            
+            <div class="card hidden" id="cardModuloFotoLibretto" style="margin-top: 5px; margin-bottom: 5px;">
+                <h2 style="color: #0891b2; text-align: left; margin-top:0;">Libretto Circolazione</h2>
+                <div class="form-group">
+                    <label for="fileLibretto">Carica Foto Fronte</label>
+                    <input type="file" id="fileLibretto" accept="image/*" onchange="comprimerESalvaImmagine(this, 'libretto')">
+                </div>
+                <div class="preview-doc-container" id="contenitoreAnteprima">
+                    <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFoto">Nessuna foto del fronte salvata.</p>
+                    <img src="" class="preview-doc-img hidden" id="immagineAnteprima" onclick="apriImmagineSchermoIntero(this.src)">
+                    <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFoto" onclick="cancellaFotoLibrettoDiretta()">×</button>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="fileLibrettoRetro">Carica Foto Retro</label>
+                    <input type="file" id="fileLibrettoRetro" accept="image/*" onchange="comprimerESalvaImmagineRetro(this, 'libretto_retro')">
+                </div>
+                <div class="preview-doc-container" id="contenitoreAnteprimaRetro">
+                    <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFotoRetro">Nessun retro salvato.</p>
+                    <img src="" class="preview-doc-img hidden" id="immagineAnteprimaRetro" onclick="apriImmagineSchermoIntero(this.src)">
+                    <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFotoRetro" onclick="cancellaFotoLibrettoRetroDiretta()">×</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="card hidden" id="cardModuloFotoLibretto">
+            <h2 style="color: #0891b2; text-align: left; margin-top:0;">Libretto Circolazione</h2>
+            <div class="form-group">
+                <label for="fileLibretto">Carica Foto Fronte</label>
+                <input type="file" id="fileLibretto" accept="image/*" onchange="comprimerESalvaImmagine(this, 'libretto')">
+            </div>
+            <div class="preview-doc-container" id="contenitoreAnteprima">
+                <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFoto">Nessuna foto del fronte salvata.</p>
+                <img src="" class="preview-doc-img hidden" id="immagineAnteprima" onclick="apriImmagineSchermoIntero(this.src)">
+                <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFoto" onclick="cancellaFotoLibrettoDiretta()">×</button>
+            </div>
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="fileLibrettoRetro">Carica Foto Retro</label>
+                <input type="file" id="fileLibrettoRetro" accept="image/*" onchange="comprimerESalvaImmagineRetro(this, 'libretto_retro')">
+            </div>
+            <div class="preview-doc-container" id="contenitoreAnteprimaRetro">
+                <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFotoRetro">Nessun retro salvato.</p>
+                <img src="" class="preview-doc-img hidden" id="immagineAnteprimaRetro" onclick="apriImmagineSchermoIntero(this.src)">
+                <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFotoRetro" onclick="cancellaFotoLibrettoRetroDiretta()">×</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="btnEliminaVeicoloCorrente" class="btn-danger-outline hidden" onclick="eliminaVeicoloSelezionato()">Elimina definitivamente questo veicolo</button>
+    
+    <div class="settings-container">
+        <div class="settings-card">
+            <h3 style="text-align: center;">Gestione dati e Backup</h3>
+            <p class="card-description" style="text-align: center;">Salva l'intero archivio o ripristina un vecchio backup.</p>
+            
+            <div class="buttons-grid">
+                <button class="btn btn-export" onclick="esportaBackupJSON()">
+                    📥 Esporta File Backup
+                </button>
+                <button class="btn btn-import" onclick="document.getElementById('inputFileBackupNascosto').click()">
+                    📤 Importa File Backup
+                </button>
+            </div>
+            <input type="file" id="inputFileBackupNascosto" accept=".json" onchange="importaBackupJSON(this)" style="display: none;">
+        </div>
+
+        <div class="settings-card card-danger" style="padding: 12px 16px; max-width: 320px; margin: 0 auto; box-sizing: border-box;">
+            <p class="card-description" style="text-align: center; margin-bottom: 12px;">
+                Ripristina l'APP allo stato iniziale di fabbrica.
+            </p>
+            <button class="btn btn-reset" style="padding: 8px; font-size: 13px;" onclick="svuotaDatabaseCompletamente()">
+                ⚠️ Reset Completo App
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalModifica" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2 style="color:var(--primary); margin-top:0; margin-bottom:5px;" id="titoloModalModifica">Modifica Record</h2>
+        <p style="font-size:14px; margin-top:0; margin-bottom:15px; color:#64748b;" id="infoVeicoloModifica"></p>
+        <div class="form-group">
+            <label for="modalData">Data Registrata</label>
+            <input type="date" id="modalData" required>
+        </div>
+        <div class="form-row" id="modalFormRowKm">
+            <div class="form-group">
+                <label for="modalKm">Km dell'intervento</label>
+                <input type="number" id="modalKm">
+            </div>
+        </div>
+        <div class="form-group" id="modalFormGroupLavori">
+            <label>Lavori Eseguiti</label>
+            <div class="checkbox-grid" id="listaLavoriModifica"></div>
+        </div>
+        <div class="modal-buttons" style="display:flex; gap:10px;">
+            <button type="button" class="btn-cancel" onclick="chiudiModal()">Annulla</button>
+            <button type="button" class="btn-submit btn-blue" style="margin-top:0;" onclick="salvaModificheIntervento()">Aggiorna</button>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #cbd5e1; margin-top: 20px;">
+        <button type="button" class="btn-delete" onclick="eliminaInterventoSingolo()">Elimina dallo storico</button>
+    </div>
+</div>
+
+<script>
+    let veicoloAttivo = "";
+    let modalitaNuovoVeicolo = false;
+    let idInterventoInModifica = null;
+    let categoriaCorrente = "meccanica";
+    let db = null;
+
+    const elencoLavoriDisponibili = [
+        "Cambio olio + filtro olio", "Filtro abitacolo", "Filtro Aria", "Candele",
+        "Pastiglie", "Dischi freni", "Filtro gasolio", "Filtro benzina",
+        "Sostituzione Batteria", "Sostituzione Gomme", "Inversione gomme", "Distribuzione"
+    ];
+
+const request = indexedDB.open("GarageSmartDB", 2);
+request.onupgradeneeded = function(e) {
+    let database = e.target.result;
+    if (!database.objectStoreNames.contains("impostazioni")) {
+        database.createObjectStore("impostazioni");
+    }
+    if (!database.objectStoreNames.contains("interventi")) {
+        database.createObjectStore("interventi", { keyPath: "id" });
+    }
+};
+request.onsuccess = function(e) {
+    db = e.target.result;
+    inizializzaApp();
+};
+request.onerror = function() {
+    alert("Errore nell'inizializzazione dell'archivio sicuro.");
+};
+   
+
+    async function leggiDato(chiave) {
+        return new Promise((resolve) => {
+            let tx = db.transaction("impostazioni", "readonly");
+            let store = tx.objectStore("impostazioni");
+            let req = store.get(chiave);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+        });
+    }
+
+    async function scriviDato(chiave, valore) {
+        return new Promise((resolve) => {
+            let tx = db.transaction("impostazioni", "readwrite");
+            let store = tx.objectStore("impostazioni");
+            store.put(valore, chiave);
+            tx.oncomplete = () => resolve(true);
+        });
+    }
+
+    async function inizializzaApp() {
+        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+        const targhe = Object.keys(mappaNomi);
+        
+        if (targhe.length === 0) {
+            attivaNuovoVeicolo();
+        } else {
+            veicoloAttivo = targhe[0];
+            modalitaNuovoVeicolo = false;
+        }
+        
+        await aggiornaInterfaccia();
+        document.getElementById('btnNuovoVeicolo').addEventListener('click', attivaNuovoVeicolo);
+        document.getElementById('kmStrumentoOggi').addEventListener('input', salvaKmAttualiOggi);
+        document.getElementById('revisioneForm').addEventListener('submit', salvaRevisione);
+        document.getElementById('assicurazioneForm').addEventListener('submit', salvaAssicurazione);
+        document.getElementById('tagliandoForm').addEventListener('submit', salvaIntervento);
+    }
+
+    function toggleModuloScomparsa(sezione) {
+    const cMeccanica = document.getElementById('cardModuloRegistrazioneMeccanica');
+    const bMeccanico = document.getElementById('btnToggleModuloMeccanico');
+    const cRevisione = document.getElementById('cardModuloRegistrazioneRevisione');
+    const bRevisione = document.getElementById('btnToggleModuloRevisione');
+    const cAssicurazione = document.getElementById('cardModuloRegistrazioneAssicurazione');
+    const bAssicurazione = document.getElementById('btnToggleModuloAssicurazione');
+    const cOlio = document.getElementById('cardModuloSpecificheOlio');
+    const bOlio = document.getElementById('btnToggleModuloOlio');
+    const cReset = document.getElementById('cardModuloResetService');
+    const bReset = document.getElementById('btnToggleModuloReset');
+    const cLibretto = document.getElementById('cardModuloFotoLibretto');
+    const bLibretto = document.getElementById('btnToggleModuloLibretto');
+
+    if (sezione === 'meccanica') {
+        if (cMeccanica.classList.contains('hidden')) {
+            cMeccanica.classList.remove('hidden'); if(bMeccanico) bMeccanico.innerText = "➖ Chiudi modulo registrazione intervento"; if(bMeccanico) bMeccanico.style.backgroundColor = "#64748b";
+        } else {
+            cMeccanica.classList.add('hidden'); if(bMeccanico) bMeccanico.innerText = "➕ Apri modulo registrazione intervento"; if(bMeccanico) bMeccanico.style.backgroundColor = "var(--primary)";
+        }
+    } else if (sezione === 'revisioni') {
+        // Chiude l'assicurazione se è aperta per non fare confusione
+        if(cAssicurazione) cAssicurazione.classList.add('hidden'); 
+        if(bAssicurazione) bAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA"; 
+        if(bAssicurazione) bAssicurazione.style.backgroundColor = "#4f46e5";
+        
+        if (cRevisione.classList.contains('hidden')) {
+            cRevisione.classList.remove('hidden'); if(bRevisione) bRevisione.innerText = "➖ Chiudi modulo registrazione revisione"; if(bRevisione) bRevisione.style.backgroundColor = "#64748b";
+        } else {
+            cRevisione.classList.add('hidden'); if(bRevisione) bRevisione.innerText = "📋 Apri modulo registrazione revisione"; if(bRevisione) bRevisione.style.backgroundColor = "var(--purple)";
+        }
+    } else if (sezione === 'assicurazioni') {
+        // Chiude la revisione se è aperta per non fare confusione
+        if(cRevisione) cRevisione.classList.add('hidden'); 
+        if(bRevisione) bRevisione.innerText = "📋 Apri modulo registrazione revisione"; 
+        if(bRevisione) bRevisione.style.backgroundColor = "var(--purple)";
+        
+        if (cAssicurazione.classList.contains('hidden')) {
+            cAssicurazione.classList.remove('hidden'); if(bAssicurazione) bAssicurazione.innerText = "➖ Chiudi modulo rinnovo polizza"; if(bAssicurazione) bAssicurazione.style.backgroundColor = "#64748b";
+        } else {
+            cAssicurazione.classList.add('hidden'); if(bAssicurazione) bAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA"; if(bAssicurazione) bAssicurazione.style.backgroundColor = "#4f46e5";
+        }
+    } else if (sezione === 'specifiche_olio') {
+        if(cReset) cReset.classList.add('hidden'); if(bReset) bReset.innerText = "🔄 Apri istruzioni Reset Service"; if(bReset) bReset.style.backgroundColor = "#d97706";
+        if(cLibretto) cLibretto.classList.add('hidden'); if(bLibretto) bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; if(bLibretto) bLibretto.style.backgroundColor = "#0891b2";
+        if (cOlio.classList.contains('hidden')) {
+            cOlio.classList.remove('hidden'); if(bOlio) bOlio.innerText = "➖ Chiudi Specifiche Olio"; if(bOlio) bOlio.style.backgroundColor = "#64748b";
+        } else {
+            cOlio.classList.add('hidden'); if(bOlio) bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; if(bOlio) bOlio.style.backgroundColor = "var(--teal)";
+        }
+    } else if (sezione === 'reset_service') {
+        if(cOlio) cOlio.classList.add('hidden'); if(bOlio) bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; if(bOlio) bOlio.style.backgroundColor = "var(--teal)";
+        if(cLibretto) cLibretto.classList.add('hidden'); if(bLibretto) bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; if(bLibretto) bLibretto.style.backgroundColor = "#0891b2";
+        if (cReset.classList.contains('hidden')) {
+            cReset.classList.remove('hidden'); if(bReset) bReset.innerText = "➖ Chiudi istruzioni Reset Service"; if(bReset) bReset.style.backgroundColor = "#64748b";
+        } else {
+            cReset.classList.add('hidden'); if(bReset) bReset.innerText = "🔄 Apri istruzioni Reset Service"; if(bReset) bReset.style.backgroundColor = "#d97706";
+        }
+    } else if (sezione === 'foto_libretto') {
+        if(cOlio) cOlio.classList.add('hidden'); if(bOlio) bOlio.innerText = "🛢️ Gestisci Specifiche e Foto Olio"; if(bOlio) bOlio.style.backgroundColor = "var(--teal)";
+        if(cReset) cReset.classList.add('hidden'); if(bReset) bReset.innerText = "🔄 Apri istruzioni Reset Service"; if(bReset) bReset.style.backgroundColor = "#d97706";
+        if (cLibretto.classList.contains('hidden')) {
+            cLibretto.classList.remove('hidden'); if(bLibretto) bLibretto.innerText = "➖ Chiudi modulo foto libretto"; if(bLibretto) bLibretto.style.backgroundColor = "#64748b";
+        } else {
+            cLibretto.classList.add('hidden'); if(bLibretto) bLibretto.innerText = "📄 Gestisci Foto Libretto Circolazione"; if(bLibretto) bLibretto.style.backgroundColor = "#0891b2";
+        }
+    }
+}
+
+    function salvaDataImmatricolazioneAlVolo() { salvaDataImmatricolazioneAlVoloAsync(); }
+    async function salvaDataImmatricolazioneAlVoloAsync() {
+        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
+        const dataImm = document.getElementById('dataImmatricolazione').value;
+        let mappaImm = await leggiDato("garage_immatricolazioni") || {};
+        mappaImm[veicoloAttivo] = dataImm;
+        await scriviDato("garage_immatricolazioni", mappaImm);
+        const interventi = await leggiDato("interventi") || [];
+        await calcolaScadenzeFiltrate(interventi, veicoloAttivo);
+    }
+
+    function salvaSpecificheFluidoAlVolo() { salvaSpecificheFluidoAlVoloAsync(); }
+    async function salvaSpecificheFluidoAlVoloAsync() {
+        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
+        const qOlio = document.getElementById('quantitaOlio').value.trim();
+        const tOlio = document.getElementById('tipoOlio').value.trim();
+        const cOlio = document.getElementById('specificicaCostruttore').value.trim();
+        let specificheMappa = await leggiDato("garage_specifiche_olio") || {};
+        specificheMappa[veicoloAttivo] = { quantita: qOlio, tipo: tOlio, costruttore: cOlio };
+        await scriviDato("garage_specifiche_olio", specificheMappa);
+    }
+
+    function salvaNoteFuturiInterventiAlVolo() { salvaNoteFuturiInterventiAlVoloAsync(); }
+    async function salvaNoteFuturiInterventiAlVoloAsync() {
+        if (!veicoloAttivo || modalitaNuovoVeicolo) return;
+        const testoNote = document.getElementById('noteFuturiInterventi').value;
+        let noteMappa = await leggiDato("garage_note_futuri_interventi") || {};
+        noteMappa[veicoloAttivo] = testoNote;
+        await scriviDato("garage_note_futuri_interventi", noteMappa);
+    }
+
+    function salvaFileResetService(input) {
+        if (!veicoloAttivo || !input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const lettore = new FileReader();
+        
+        lettore.onload = async function(e) {
+            let fileData = {
+                tipo: file.type.startsWith('video/') ? 'video' : 'immagine',
+                content: e.target.result
+            };
+            let mappaReset = await leggiDato("garage_files_reset_service") || {};
+            mappaReset[veicoloAttivo] = fileData;
+            await scriviDato("garage_files_reset_service", mappaReset);
+            await mostraFileResetSeEsistente();
+            alert("File di reset service abbinato correttamente! ✅");
+        };
+        lettore.readAsDataURL(file);
+    }
+
+    async function mostraFileResetSeEsistente() {
+        const contenitore = document.getElementById('contenitoreAnteprimaReset');
+        const imgTag = document.getElementById('immagineAnteprimaReset');
+        const videoTag = document.getElementById('videoAnteprimaReset');
+        const btnDelete = document.getElementById('btnRimuoviReset');
+        if (!veicoloAttivo) return;
+
+        let mappaReset = await leggiDato("garage_files_reset_service") || {};
+        let fileData = mappaReset[veicoloAttivo];
+
+        if (fileData) {
+            contenitore.classList.remove('hidden');
+            btnDelete.classList.remove('hidden');
+            if (fileData.tipo === 'video') {
+                imgTag.classList.add('hidden'); imgTag.src = "";
+                videoTag.src = fileData.content; videoTag.classList.remove('hidden');
+            } else {
+                videoTag.classList.add('hidden'); videoTag.src = "";
+                imgTag.src = fileData.content; imgTag.classList.remove('hidden');
+            }
+        } else {
+            contenitore.classList.add('hidden');
+            imgTag.classList.add('hidden'); imgTag.src = "";
+            videoTag.classList.add('hidden'); videoTag.src = "";
+            btnDelete.classList.add('hidden');
+            document.getElementById('fileResetService').value = "";
+        }
+    }
+
+    async function cancellaFileResetDiretto() {
+        if (!veicoloAttivo || !confirm("Rimuovere il file delle istruzioni di reset?")) return;
+        let mappaReset = await leggiDato("garage_files_reset_service") || {};
+        delete mappaReset[veicoloAttivo];
+        await scriviDato("garage_files_reset_service", mappaReset);
+        await mostraFileResetSeEsistente();
+    }
+
+    async function eliminaVeicoloSelezionato() {
+        if (!veicoloAttivo) return;
+        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+        const nomeMezzo = mappaNomi[veicoloAttivo] || "questo veicolo";
+        if (!confirm(`Eliminare DEFINITIVAMENTE il veicolo "${nomeMezzo}"?`)) return;
+
+        delete mappaNomi[veicoloAttivo]; await scriviDato("garage_nomi_veicoli", mappaNomi);
+        let configKm = await leggiDato("garage_config_intervalli") || {}; delete configKm[veicoloAttivo]; await scriviDato("garage_config_intervalli", configKm);
+        let kmOggi = await leggiDato("garage_km_attuali") || {}; delete kmOggi[veicoloAttivo]; await scriviDato("garage_km_attuali", kmOggi);
+        let specificheOlio = await leggiDato("garage_specifiche_olio") || {}; delete specificheOlio[veicoloAttivo]; await scriviDato("garage_specifiche_olio", specificheOlio);
+        let fotoOlio = await leggiDato("garage_foto_bottiglie_olio") || {}; delete fotoOlio[veicoloAttivo]; await scriviDato("garage_foto_bottiglie_olio", fotoOlio);
+        let fotoLibretti = await leggiDato("garage_foto_libretti") || {}; delete fotoLibretti[veicoloAttivo]; await scriviDato("garage_foto_libretti", fotoLibretti);
+        let mappaImm = await leggiDato("garage_immatricolazioni") || {}; delete mappaImm[veicoloAttivo]; await scriviDato("garage_immatricolazioni", mappaImm);
+        let noteMappa = await leggiDato("garage_note_futuri_interventi") || {}; delete noteMappa[veicoloAttivo]; await scriviDato("garage_note_futuri_interventi", noteMappa);
+        let mappaReset = await leggiDato("garage_files_reset_service") || {}; delete mappaReset[veicoloAttivo]; await scriviDato("garage_files_reset_service", mappaReset);
+
+        let interventi = await leggiDato("interventi") || [];
+        interventi = interventi.filter(i => i.targa !== veicoloAttivo); await scriviDato("interventi", interventi);
+
+        const targheRimaste = Object.keys(mappaNomi);
+        if(targheRimaste.length > 0) { veicoloAttivo = targheRimaste[0]; modalitaNuovoVeicolo = false; } 
+        else { veicoloAttivo = ""; modalitaNuovoVeicolo = true; }
+        await aggiornaInterfaccia();
+    }
+
+    function cambiaCategoria(categoria) {
+        categoriaCorrente = categoria;
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-cat') === categoria);
+        });
+        document.querySelectorAll('.cat-content').forEach(section => section.classList.add('hidden'));
+        if (categoria === 'meccanica') document.getElementById('sezioneMeccanica').classList.remove('hidden');
+        if (categoria === 'burocrazia') document.getElementById('sezioneBurocrazia').classList.remove('hidden');
+        if (categoria === 'tecnico_fisso') document.getElementById('sezioneTecnicoFisso').classList.remove('hidden');
+    }
+
+    function comprimerESalvaImmagine(input, destinazione) {
+        if (!veicoloAttivo || !input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const lettore = new FileReader();
+        
+        lettore.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max_dim = 1200;
+                
+                if (width > height && width > max_dim) { height *= max_dim / width; width = max_dim; } 
+                else if (height > max_dim) { width *= max_dim / height; height = max_dim; }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                const base64Compresso = canvas.toDataURL('image/jpeg', 0.60);
+                
+                if (destinazione === 'libretto') {
+                    let mappa = await leggiDato("garage_foto_libretti") || {};
+                    mappa[veicoloAttivo] = base64Compresso;
+                    await scriviDato("garage_foto_libretti", mappa);
+                    await mostraFotoLibrettoSeEsistente();
+                } else if (destinazione === 'olio') {
+                    let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
+                    mappa[veicoloAttivo] = base64Compresso;
+                    await scriviDato("garage_foto_bottiglie_olio", mappa);
+                    await mostraFotoOlioSeEsistente();
+                }
+                alert("File salvato con successo! ✅");
+            };
+        };
+        lettore.readAsDataURL(file);
+    }
+
+    async function mostraFotoLibrettoSeEsistente() {
+        const testoVuoto = document.getElementById('testoVuotoFoto');
+        const imgTag = document.getElementById('immagineAnteprima');
+        const btnDelete = document.getElementById('btnRimuoviFoto');
+        if (!veicoloAttivo) return;
+        
+        let mappa = await leggiDato("garage_foto_libretti") || {};
+        if (mappa[veicoloAttivo]) {
+            testoVuoto.classList.add('hidden'); 
+            imgTag.src = mappa[veicoloAttivo]; 
+            imgTag.classList.remove('hidden'); 
+            btnDelete.classList.remove('hidden');
+        } else {
+            testoVuoto.classList.remove('hidden'); 
+            imgTag.src = ""; 
+            imgTag.classList.add('hidden'); 
+            btnDelete.classList.add('hidden');
+            document.getElementById('fileLibretto').value = "";
+        }
+    }
+
+    async function cancellaFotoLibrettoDiretta() {
+        if (!veicoloAttivo || !confirm("Rimuovere la foto del libretto?")) return;
+        let mappa = await leggiDato("garage_foto_libretti") || {};
+        delete mappa[veicoloAttivo]; await scriviDato("garage_foto_libretti", mappa);
+        await mostraFotoLibrettoSeEsistente();
+    }
+
+    async function mostraFotoOlioSeEsistente() {
+        const contenitoreFotoOlio = document.getElementById('contenitoreAnteprimaOlio');
+        const imgTag = document.getElementById('immagineAnteprimaOlio');
+        const btnDelete = document.getElementById('btnRimuoviOlio');
+        if (!veicoloAttivo) return;
+        
+        let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
+        if (mappa[veicoloAttivo]) {
+            contenitoreFotoOlio.classList.remove('hidden'); 
+            imgTag.src = mappa[veicoloAttivo]; 
+            imgTag.classList.remove('hidden'); 
+            btnDelete.classList.remove('hidden');
+        } else {
+            contenitoreFotoOlio.classList.add('hidden'); 
+            imgTag.src = ""; 
+            imgTag.classList.add('hidden'); 
+            btnDelete.classList.add('hidden');
+            document.getElementById('fileBottiglia').value = "";
+        }
+    }
+
+    async function cancellaFotoOlioDiretta() {
+        if (!veicoloAttivo || !confirm("Rimuovere la foto delle specifiche dell'olio?")) return;
+        let mappa = await leggiDato("garage_foto_bottiglie_olio") || {};
+        delete mappa[veicoloAttivo]; await scriviDato("garage_foto_bottiglie_olio", mappa);
+        await mostraFotoOlioSeEsistente();
+    }
+
+    function apriImmagineSchermoIntero(src) {
+        const nuovaFinestra = window.open();
+        nuovaFinestra.document.write(`<img src="${src}" style="max-width:100%; height:auto; display:block; margin:0 auto;">`);
+    }
+
+    function salvaKmAttualiOggi() { salvaKmAttualiOggiAsync(); }
+    async function salvaKmAttualiOggiAsync() {
+        const valore = parseInt(document.getElementById('kmStrumentoOggi').value);
+        if(!veicoloAttivo || isNaN(valore)) return;
+        let kmMappa = await leggiDato("garage_km_attuali") || {};
+        kmMappa[veicoloAttivo] = valore; await scriviDato("garage_km_attuali", kmMappa);
+        const interventions = await leggiDato("interventi") || [];
+        await calcolaScadenzeFiltrate(interventions, veicoloAttivo);
+    }
+
+    function attivaNuovoVeicolo() {
+        modalitaNuovoVeicolo = true; veicoloAttivo = "";
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        gestisciVisibilitaCampi();
+    }
+
+    async function gestisciVisibilitaCampi() {
+        const bloccoAnagrafica = document.getElementById('bloccoAnagraficaVeicolo');
+        const campoIntervallo = document.getElementById('bloccoIntervalloKm');
+        const campoModello = document.getElementById('modello');
+        const campoTarga = document.getElementById('targa');
+        const titoloModuloMeccanico = document.getElementById('titoloModuloMeccanico');
+        const btnSalva = document.getElementById('btnSalva');
+        const boxKmOggi = document.getElementById('boxKmOggi');
+        const menuCategorie = document.getElementById('menuCategorie');
+        const btnEliminaVeicoloCorrente = document.getElementById('btnEliminaVeicoloCorrente');
+        const cardImmatricolazione = document.getElementById('cardImmatricolazione');
+        const bloccoNoteFuturo = document.getElementById('bloccoNoteFuturoSempreAttivo');
+        
+        const cardModuloMeccanica = document.getElementById('cardModuloRegistrazioneMeccanica');
+        const btnToggleMeccanico = document.getElementById('btnToggleModuloMeccanico');
+        
+        const cardModuloRevisione = document.getElementById('cardModuloRegistrazioneRevisione');
+        const btnToggleRevisione = document.getElementById('btnToggleModuloRevisione');
+        const cardModuloAssicurazione = document.getElementById('cardModuloRegistrazioneAssicurazione');
+        const btnToggleAssicurazione = document.getElementById('btnToggleModuloAssicurazione');
+        
+        const cardModuloSpecificheOlio = document.getElementById('cardModuloSpecificheOlio');
+        const btnToggleOlio = document.getElementById('btnToggleModuloOlio');
+        const cardModuloResetService = document.getElementById('cardModuloResetService');
+        const btnToggleReset = document.getElementById('btnToggleModuloReset');
+        const cardModuloFotoLibretto = document.getElementById('cardModuloFotoLibretto');
+        const btnToggleLibretto = document.getElementById('btnToggleModuloLibretto');
+
+        document.querySelectorAll('.cat-content').forEach(s => s.classList.add('hidden'));
+
+        if (modalitaNuovoVeicolo) {
+            bloccoAnagrafica.classList.remove('hidden'); campoIntervallo.classList.remove('hidden');
+            boxKmOggi.classList.add('hidden'); menuCategorie.classList.add('hidden');
+            cardImmatricolazione.classList.add('hidden'); btnEliminaVeicoloCorrente.classList.add('hidden');
+            bloccoNoteFuturo.classList.add('hidden');
+            
+            cardModuloMeccanica.classList.remove('hidden');
+            btnToggleMeccanico.classList.add('hidden');
+            
+            campoModello.required = true; campoTarga.required = true;
+            document.getElementById('quantitaOlio').value = "";
+            document.getElementById('tipoOlio').value = "";
+            document.getElementById('specificicaCostruttore').value = "";
+            document.getElementById('noteFuturiInterventi').value = "";
+            document.getElementById('intervalloKm').value = "15000";
+            
+            titoloModuloMeccanico.innerText = "Registra Nuovo Veicolo";
+            btnSalva.innerText = "Crea Scheda Veicolo";
+            document.getElementById('statoTagliando').innerHTML = '<p style="text-align:center; color:#64748b;">Configura il nuovo veicolo inserendo i dati richiesti.</p>';
+            document.getElementById('listaTagliandi').innerHTML = '';
+            document.getElementById('titoloStato').innerText = "Stato Scadenze";
+            document.getElementById('sezioneMeccanica').classList.remove('hidden');
+        } else {
+            bloccoAnagrafica.classList.add('hidden'); campoIntervallo.classList.add('hidden');
+            boxKmOggi.classList.remove('hidden'); menuCategorie.classList.remove('hidden');
+            cardImmatricolazione.classList.remove('hidden'); btnEliminaVeicoloCorrente.classList.remove('hidden'); bloccoNoteFuturo.classList.remove('hidden');
+            if (campoModello) campoModello.required = false; 
+    if (campoTarga) campoTarga.required = false;
+            
+
+cardModuloMeccanica.classList.add('hidden');
+btnToggleMeccanico.classList.remove('hidden');
+btnToggleMeccanico.innerText = "➕ Apri modulo registrazione intervento";
+btnToggleMeccanico.style.backgroundColor = "var(--primary)";
+
+if (cardModuloRevisione) cardModuloRevisione.classList.add('hidden');
+        if (btnToggleRevisione) {
+            btnToggleRevisione.classList.remove('hidden');
+            btnToggleRevisione.innerText = "📋 Apri modulo registrazione revisione";
+            btnToggleRevisione.style.backgroundColor = "var(--purple)";
+        }
+
+        if (cardModuloAssicurazione) cardModuloAssicurazione.classList.add('hidden');
+        if (btnToggleAssicurazione) {
+            btnToggleAssicurazione.classList.remove('hidden');
+            btnToggleAssicurazione.innerText = "🛡️ Apri modulo rinnovo polizza RCA";
+            btnToggleAssicurazione.style.backgroundColor = "#4f46e5";
+        }
+
+            if (cardModuloSpecificheOlio) cardModuloSpecificheOlio.classList.add('hidden');
+if (btnToggleOlio) {
+    btnToggleOlio.classList.remove('hidden');
+    btnToggleOlio.innerText = "🛢️ Specifiche e Foto Olio";
+    btnToggleOlio.style.backgroundColor = "var(--teal)";
+}
+
+if (cardModuloResetService) cardModuloResetService.classList.add('hidden');
+if (btnToggleReset) {
+    btnToggleReset.classList.remove('hidden');
+    btnToggleReset.innerText = "🔄 Istruzioni Reset Service";
+    btnToggleReset.style.backgroundColor = "#d97706";
+}
+
+if (cardModuloFotoLibretto) cardModuloFotoLibretto.classList.add('hidden');
+if (btnToggleLibretto) {
+    btnToggleLibretto.classList.remove('hidden');
+    btnToggleLibretto.innerText = "📄 Libretto Circolazione";
+    btnToggleLibretto.style.backgroundColor = "#0891b2";
+}
+            
+            campoModello.required = false; campoTarga.required = false;
+            const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+            titoloModuloMeccanico.innerText = `Aggiungi Intervento Tecnico per ${mappaNomi[veicoloAttivo] || "Veicolo"}`;
+            btnSalva.innerText = `Salva Intervento`;
+            
+            document.getElementById('chkCambioOlioDefault').checked = false;
+            
+            let specificheMappa = await leggiDato("garage_specifiche_olio") || {};
+            let specificheMezzo = specificheMappa[veicoloAttivo] || { quantita: "", tipo: "", costruttore: "" };
+            document.getElementById('quantitaOlio').value = specificheMezzo.quantita || "";
+            document.getElementById('tipoOlio').value = specificheMezzo.tipo || "";
+            document.getElementById('specificicaCostruttore').value = specificheMezzo.costruttore || "";
+
+            let noteMappa = await leggiDato("garage_note_futuri_interventi") || {};
+            document.getElementById('noteFuturiInterventi').value = noteMappa[veicoloAttivo] || "";
+
+            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
+            document.getElementById('intervalloKm').value = configurazioniMappa[veicoloAttivo] || "15000";
+
+            let mappaImm = await leggiDato("garage_immatricolazioni") || {};
+            document.getElementById('dataImmatricolazione').value = mappaImm[veicoloAttivo] || "";
+
+            await mostraFotoLibrettoSeEsistente(); 
+            await mostraFotoOlioSeEsistente();
+            await mostraFileResetSeEsistente();
+            await mostraFotoLibrettoRetroSeEsistente();
+
+            const kmMappa = await leggiDato("garage_km_attuali") || {};
+            document.getElementById('kmStrumentoOggi').value = kmMappa[veicoloAttivo] || "";
+            
+            cambiaCategoria(categoriaCorrente);
+        }
+    }
+
+async function salvaIntervento(e) {
+    e.preventDefault();
+    
+    // Disabilita temporaneamente il pulsante per evitare doppi click accidentali
+    const btnSalvaIntervento = document.getElementById('btnSalva');
+    if (btnSalvaIntervento) btnSalvaIntervento.disabled = true;
+
+    const checkboxes = document.querySelectorAll('#listaLavori input[type="checkbox"]:checked');
+    const lavoriSelezionati = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (lavoriSelezionati.length === 0) { 
+        alert("Seleziona almeno un lavoro!"); 
+        if (btnSalvaIntervento) btnSalvaIntervento.disabled = false;
+        return; 
+    }
+    
+    let modello, targa, intervalloKm;
+    let interventi = await leggiDato("interventi") || [];
+    intervalloKm = parseInt(document.getElementById('intervalloKm').value) || 15000;
+    const kmSelezionati = parseInt(document.getElementById('km').value);
+
+    if (modalitaNuovoVeicolo) {
+        modello = document.getElementById('modello').value.trim();
+        targa = document.getElementById('targa').value.toUpperCase().trim();
+        if (!modello || !targa || isNaN(intervalloKm)) {
+            if (btnSalvaIntervento) btnSalvaIntervento.disabled = false;
+            return;
+        }
+
+        let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
+        configurazioniMappa[targa] = intervalloKm; await scriviDato("garage_config_intervalli", configurazioniMappa);
+        let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+        mappaNomi[targa] = modello; await scriviDato("garage_nomi_veicoli", mappaNomi);
+        veicoloAttivo = targa;
+    } else {
+        let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+        modello = mappaNomi[veicoloAttivo] || "Veicolo"; targa = veicoloAttivo;
+        let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
+        configurazioniMappa[veicoloAttivo] = intervalloKm; await scriviDato("garage_config_intervalli", configurazioniMappa);
+    }
+
+    let kmMappa = await leggiDato("garage_km_attuali") || {};
+    if (!kmMappa[targa] || kmSelezionati > kmMappa[targa]) {
+        kmMappa[targa] = kmSelezionati;
+        await scriviDato("garage_km_attuali", kmMappa);
+    }
+
+    // CORREZIONE CRITICA: ID basato sul millisecondo + un numero casuale per garantire l'univocità assoluta
+    const idUnivoco = Date.now() + Math.floor(Math.random() * 1000);
+
+    const intervento = {
+        id: idUnivoco, 
+        tipoRecord: 'meccanico', 
+        modello: modello, 
+        targa: targa, 
+        km: kmSelezionati, 
+        intervalloKm: intervalloKm, 
+        tipi: lavoriSelezionati, 
+        data: document.getElementById('data').value
+    };
+
+    interventi.push(intervento); 
+    await scriviDato("interventi", interventi);
+    
+    modalitaNuovoVeicolo = false; 
+    
+    // Resetta i campi del form e i checkbox
+    document.getElementById('tagliandoForm').reset();
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    // Riabilita il pulsante e aggiorna l'interfaccia
+    if (btnSalvaIntervento) btnSalvaIntervento.disabled = false;
+    await aggiornaInterfaccia();
+}
+
+    async function salvaRevisione(e) {
+    e.preventDefault(); if (!veicoloAttivo) return;
+    let interventi = await leggiDato("interventi") || [];
+    let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+    
+    // ID Univoco anti-blocco
+    const idUnivoco = Date.now() + Math.floor(Math.random() * 1000);
+    
+    const revisione = {
+        id: idUnivoco, tipoRecord: 'revisione', modello: mappaNomi[veicoloAttivo] || "Veicolo", targa: veicoloAttivo, data: document.getElementById('dataRevisione').value, tipi: ["Revisione Ministeriale"]
+    };
+    interventi.push(revisione); 
+    await scriviDato("interventi", interventi);
+    document.getElementById('dataRevisione').value = ""; 
+    await aggiornaInterfaccia();
+}
+
+async function salvaAssicurazione(e) {
+    e.preventDefault(); if (!veicoloAttivo) return;
+    let interventi = await leggiDato("interventi") || [];
+    let mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+    
+    // ID Univoco anti-blocco
+    const idUnivoco = Date.now() + Math.floor(Math.random() * 1000);
+    
+    const assicurazione = {
+        id: idUnivoco, tipoRecord: 'assicurazione', modello: mappaNomi[veicoloAttivo] || "Veicolo", targa: veicoloAttivo, data: document.getElementById('dataAssicurazione').value, tipi: ["Polizza Assicurativa"]
+    };
+    interventi.push(assicurazione); 
+    await scriviDato("interventi", interventi);
+    document.getElementById('dataAssicurazione').value = ""; 
+    await aggiornaInterfaccia();
+}
+
+    async function aggiornaInterfaccia() {
+        const interventi = await leggiDato("interventi") || [];
+        const mappaNomi = await leggiDato("garage_nomi_veicoli") || {};
+        const targheUniche = Object.keys(mappaNomi);
+
+        if (targheUniche.length === 0) {
+            veicoloAttivo = ""; modalitaNuovoVeicolo = true; document.getElementById('tabsVeicoli').innerHTML = '';
+            await gestisciVisibilitaCampi(); return;
+        }
+
+        if (veicoloAttivo && !targheUniche.includes(veicoloAttivo)) veicoloAttivo = targheUniche[0];
+        if (!veicoloAttivo && targheUniche.length > 0) veicoloAttivo = targheUniche[0];
+
+        const containerTabs = document.getElementById('tabsVeicoli'); containerTabs.innerHTML = '';
+        targheUniche.forEach(targa => {
+            const btn = document.createElement('button');
+            btn.className = `tab-button ${(!modalitaNuovoVeicolo && targa === veicoloAttivo) ? 'active' : ''}`;
+            btn.innerText = `${mappaNomi[targa] || "Veicolo"} [${targa}]`;
+            btn.onclick = async () => { veicoloAttivo = targa; modalitaNuovoVeicolo = false; await aggiornaInterfaccia(); };
+            containerTabs.appendChild(btn);
+        });
+
+        if (!modalitaNuovoVeicolo && veicoloAttivo) {
+            await caricaStoriciFiltrati(interventi, veicoloAttivo);
+            await calcolaScadenzeFiltrate(interventi, veicoloAttivo);
+        }
+        await gestisciVisibilitaCampi();
+    }
+
+    async function caricaStoriciFiltrati(interventi, targaVeicolo) {
+        const listaTagliandi = document.getElementById('listaTagliandi');
+        const listaBurocrazia = document.getElementById('listaBurocrazia');
+        if(listaTagliandi) listaTagliandi.innerHTML = ''; if(listaBurocrazia) listaBurocrazia.innerHTML = '';
+
+        const filtrati = interventi.filter(i => i.targa === targaVeicolo);
+        filtrati.reverse().forEach(item => {
+            const dataFormattata = new Date(item.data).toLocaleDateString('it-IT');
+            const li = document.createElement('li'); li.onclick = () => apriModalModifica(item.id);
+            
+            if(item.tipoRecord === 'revisione') {
+                li.className = 'intervento-item revisione-item';
+                li.innerHTML = `<div><span class="tag-intervento tag-revisione">📋 Revisione Ministeriale</span></div><small>Effettuata: <strong>${dataFormattata}</strong></small>`;
+                if(listaBurocrazia) listaBurocrazia.appendChild(li);
+            } else if(item.tipoRecord === 'assicurazione') {
+                li.className = 'intervento-item assicurazione-item';
+                li.innerHTML = `<div><span class="tag-intervento tag-assicurazione">🛡️ Rinnovo RCA</span></div><small>Inizio copertura: <strong>${dataFormattata}</strong></small>`;
+                if(listaBurocrazia) listaBurocrazia.appendChild(li);
+            } else {
+                li.className = 'intervento-item';
+                const lavori = item.tipi || []; let tagHTML = lavori.map(lav => `<span class="tag-intervento">${lav}</span>`).join('');
+                li.innerHTML = `<div>${tagHTML}</div><small>Eseguito il: <strong>${dataFormattata}</strong> a Km: <strong>${(item.km || 0).toLocaleString('it-IT')}</strong></small>`;
+                if(listaTagliandi) listaTagliandi.appendChild(li);
+            }
+        });
+    }
+
+    async function apriModalModifica(id) {
+        idInterventoInModifica = id;
+        const interventi = await leggiDato("interventi") || [];
+        const intento = interventi.find(i => i.id === id);
+        if (!intento) return;
+
+        document.getElementById('infoVeicoloModifica').innerHTML = `Modello: <strong>${intento.modello}</strong> | Targa: <strong>${intento.targa}</strong>`;
+        document.getElementById('modalData').value = intento.data;
+
+        const rowKm = document.getElementById('modalFormRowKm');
+        const groupLavori = document.getElementById('modalFormGroupLavori');
+        const titoloModal = document.getElementById('titoloModalModifica');
+
+        if(intento.tipoRecord === 'revisione' || intento.tipoRecord === 'assicurazione') {
+            rowKm.classList.add('hidden'); groupLavori.classList.add('hidden');
+            titoloModal.innerText = intento.tipoRecord === 'revisione' ? "Modifica Revisione" : "Modifica Assicurazione";
+        } else {
+            rowKm.classList.remove('hidden'); groupLavori.classList.remove('hidden'); titoloModal.innerText = "Modifica Dati Controllo";
+            document.getElementById('modalKm').value = intento.km || 0;
+            const gridModifica = document.getElementById('listaLavoriModifica'); gridModifica.innerHTML = '';
+            elencoLavoriDisponibili.forEach(lavoro => {
+                const isChecked = (intento.tipi && intento.tipi.includes(lavoro)) ? 'checked' : '';
+                const label = document.createElement('label'); label.className = 'checkbox-item';
+                label.innerHTML = `<input type="checkbox" value="${lavoro}" ${isChecked}> ${lavoro}`;
+                gridModifica.appendChild(label);
+            });
+        }
+        document.getElementById('modalModifica').classList.remove('hidden');
+    }
+
+    function chiudiModal() { document.getElementById('modalModifica').classList.add('hidden'); idInterventoInModifica = null; }
+
+    async function eliminaInterventoSingolo() {
+        if (!idInterventoInModifica) return; if (!confirm("Eliminare record?")) return;
+        let interventi = await leggiDato("interventi") || [];
+        interventi = interventi.filter(i => i.id !== idInterventoInModifica); await scriviDato("interventi", interventi);
+        chiudiModal(); await aggiornaInterfaccia();
+    }
+
+    async function salvaModificheIntervento() {
+        const nuovaData = document.getElementById('modalData').value; if (!nuovaData) return;
+        let interventi = await leggiDato("interventi") || [];
+        const indice = interventi.findIndex(i => i.id === idInterventoInModifica);
+        if (indice !== -1) {
+            interventi[indice].data = nuovaData;
+            if(interventi[indice].tipoRecord !== 'revisione' && interventi[indice].tipoRecord !== 'assicurazione') {
+                interventi[indice].km = parseInt(document.getElementById('modalKm').value);
+                const checkboxes = document.querySelectorAll('#listaLavoriModifica input[type="checkbox"]:checked');
+                interventi[indice].tipi = Array.from(checkboxes).map(cb => cb.value);
+            }
+            await scriviDato("interventi", interventi);
+        }
+        chiudiModal(); await aggiornaInterfaccia();
+    }
+
+    async function calcolaScadenzeFiltrate(interventi, targaVeicolo) {
+        const display = document.getElementById('statoTagliando');
+        let htmlScadenze = ""; const oggi = new Date();
+
+        // Olio
+        const cambiOlio = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'meccanico' && i.tipi && i.tipi.includes('Cambio olio + filtro olio'));
+        if (cambiOlio.length === 0) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Olio Motore</div><div>Nessun cambio registrato nello storico.</div></div>`;
+        } else {
+            const ultimoCambio = cambiOlio[cambiOlio.length - 1];
+            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
+            const configKm = parseInt(configurazioniMappa[targaVeicolo]) || 15000; 
+            const kmScadenza = parseInt(ultimoCambio.km) + configKm;
+            
+            const kmMappa = await leggiDato("garage_km_attuali") || {};
+            const kmAttualiMezzo = kmMappa[targaVeicolo] !== undefined ? parseInt(kmMappa[targaVeicolo]) : parseInt(ultimoCambio.km);
+            const kmRimanenti = kmScadenza - kmAttualiMezzo;
+            
+            if (kmRimanenti <= 0) {
+                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ CAMBIO OLIO SCADUTO!</div><div>Fuori di ${Math.abs(kmRimanenti).toLocaleString('it-IT')} km.</div></div>`;
+            } else if (kmRimanenti < 2000) {
+                htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Cambio olio in scadenza!</div><div>Mancano solo ${kmRimanenti.toLocaleString('it-IT')} km.</div></div>`;
+            } else {
+                htmlScadenze += `<div class="scadenza-box status-ok"><div>Olio Motore OK ✅</div><div>Scadenza a ${kmScadenza.toLocaleString('it-IT')} km (Mancano ${kmRimanenti.toLocaleString('it-IT')} km).</div></div>`;
+            }
+        }
+
+        // Revisione
+        const revisioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'revisione');
+        let mappaImm = await leggiDato("garage_immatricolazioni") || {};
+        let dataImmatricolazioneStringa = mappaImm[targaVeicolo];
+        if (revisioniEffettuate.length === 0 && !dataImmatricolazioneStringa) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>📋 Revisione Ministeriale</div><div>Inserisci la data di immatricolazione.</div></div>`;
+        } else {
+            let dataScadenzaGrezza; let prima = false;
+            if (revisioniEffettuate.length === 0) {
+                const dataImm = new Date(dataImmatricolazioneStringa);
+                dataScadenzaGrezza = new Date(dataImm.setFullYear(dataImm.getFullYear() + 4)); prima = true;
+            } else {
+                const ultimaRev = revisioniEffettuate[revisioniEffettuate.length - 1]; const dataUltimaRev = new Date(ultimaRev.data);
+                dataScadenzaGrezza = new Date(dataUltimaRev.setFullYear(dataUltimaRev.getFullYear() + 2));
+            }
+            
+            let dataScadenzaRev = new Date(dataScadenzaGrezza.getFullYear(), dataScadenzaGrezza.getMonth() + 1, 0);
+            const giorniRimanentiRev = Math.ceil((dataScadenzaRev - oggi) / (1000 * 60 * 60 * 24));
+            let tipoStato = prima ? "Prima Revisione OK ✅" : "Revisione Periodica OK ✅";
+            let tipoScaduto = prima ? "⚠️ PRIMA REVISIONE SCADUTA!" : "⚠️ REVISIONE PERIODICA SCADUTA!";
+            let tipoInScadenza = prima ? "📋 Prima Revisione in scadenza!" : "📋 Revisione Periodica in scadenza!";
+
+            if (giorniRimanentiRev <= 0) {
+                htmlScadenze += `<div class="scadenza-box status-danger"><div>${tipoScaduto}</div><div>Scaduta il ${dataScadenzaRev.toLocaleDateString('it-IT')}!</div></div>`;
+            } else if (giorniRimanentiRev <= 30) {
+                htmlScadenze += `<div class="scadenza-box status-warning"><div>${tipoInScadenza}</div><div>Mancano ${giorniRimanentiRev} giorni (Entro il: ${dataScadenzaRev.toLocaleDateString('it-IT')}).</div></div>`;
+            } else {
+                htmlScadenze += `<div class="scadenza-box status-ok"><div>${tipoStato}</div><div>Scadenza valida fino al: ${dataScadenzaRev.toLocaleDateString('it-IT')}</div></div>`;
+            }
+        }
+
+        // Assicurazione
+        const assicurazioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'assicurazione');
+        if (assicurazioniEffettuate.length === 0) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ Assicurazione RCA</div><div>Nessun rinnovo registrato.</div></div>`;
+        } else {
+            const ultimaAss = assicurazioniEffettuate[assicurazioniEffettuate.length - 1]; const dataUltimaAss = new Date(ultimaAss.data);
+            const dataScadenzaAss = new Date(dataUltimaAss.setFullYear(dataUltimaAss.getFullYear() + 1));
+            const giorniRimanentiAss = Math.ceil((dataScadenzaAss - oggi) / (1000 * 60 * 60 * 24));
+            
+            if (giorniRimanentiAss <= 0) {
+                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ POLIZZA RCA SCADUTA!</div><div>Scaduta il ${dataScadenzaAss.toLocaleDateString('it-IT')}!</div></div>`;
+            } else if (giorniRimanentiAss <= 15) {
+                htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ RCA in scadenza!</div><div>Mancano solo ${giorniRimanentiAss} giorni.</div></div>`;
+            } else {
+                htmlScadenze += `<div class="scadenza-box status-ok"><div>Assicurazione RCA valida ✅</div><div>Scadenza: ${dataScadenzaAss.toLocaleDateString('it-IT')}</div></div>`;
+            }
+        }
+        display.innerHTML = htmlScadenze;
+    }
+
+    function comprimerESalvaImmagineRetro(input, destinazione) {
+        if (!veicoloAttivo || !input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const lettore = new FileReader();
+        lettore.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max_dim = 1200;
+                if (width > height && width > max_dim) { height *= max_dim / width; width = max_dim; } 
+                else if (height > max_dim) { width *= max_dim / height; height = max_dim; }
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+                const base64Compresso = canvas.toDataURL('image/jpeg', 0.60);
+                
+              let mappa = await leggiDato("garage_foto_libretti_retro") || {};
+                mappa[veicoloAttivo] = base64Compresso;
+                await scriviDato("garage_foto_libretti_retro", mappa);
+                await mostraFotoLibrettoRetroSeEsistente();
+                alert("Foto Retro salvata! ✅");
+            };
+        };
+        lettore.readAsDataURL(file);
+    }  
+
+    async function mostraFotoLibrettoRetroSeEsistente() {
+        const testoVuoto = document.getElementById('testoVuotoFotoRetro');
+        const imgTag = document.getElementById('immagineAnteprimaRetro');
+        const btnDelete = document.getElementById('btnRimuoviFotoRetro');
+        if (!veicoloAttivo) return;
+        
+        let mappa = await leggiDato("garage_foto_libretti_retro") || {};
+        if (mappa[veicoloAttivo]) {
+            testoVuoto.classList.add('hidden'); 
+            imgTag.src = mappa[veicoloAttivo]; 
+            imgTag.classList.remove('hidden'); 
+            btnDelete.classList.remove('hidden');
+        } else {
+            testoVuoto.classList.remove('hidden'); 
+            imgTag.src = ""; 
+            imgTag.classList.add('hidden'); 
+            btnDelete.classList.add('hidden');
+        }
+    }
+
+    async function cancellaFotoLibrettoRetroDiretta() {
+        if (!veicoloAttivo || !confirm("Rimuovere la foto del libretto retro?")) return;
+        let mappa = await leggiDato("garage_foto_libretti_retro") || {};
+        delete mappa[veicoloAttivo]; 
+        await scriviDato("garage_foto_libretti_retro", mappa);
+        await mostraFotoLibrettoRetroSeEsistente();
+        alert("Foto retro eliminata! ✅");
+    }
+ 
+    async function svuotaDatabaseCompletamente() {
+        if (!confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione allo stato iniziale e CANCELLERÀ TUTTI i veicoli e i dati salvati. L'azione non è reversibile.")) return;
+        let tx = db.transaction("impostazioni", "readwrite");
+        let store = tx.objectStore("impostazioni");
+        store.clear();
+        tx.oncomplete = () => {
+            localStorage.clear();
+            alert("Database svuotato con successo! ♻️");
+            location.reload();
+        };
+        }
+    async function esportaBackupJSON() {
+    try {
+        if (!db) {
+            alert("Errore: Database non pronto.");
+            return;
+        }
+
+        // Chiediamo l'accesso SOLO alle due tabelle realmente esistenti
+        let tx = db.transaction(["impostazioni", "interventi"], "readonly");
+        let backupDati = {
+            impostazioni: {},
+            interventi: []
+        };
+
+        let storeImpostazioni = tx.objectStore("impostazioni");
+        let storeInterventi = tx.objectStore("interventi");
+
+        // Raccogliamo le Impostazioni
+        storeImpostazioni.openCursor().onsuccess = function(e) {
+            let cursor = e.target.result;
+            if (cursor) {
+                backupDati.impostazioni[cursor.key] = cursor.value;
+                cursor.continue();
+            }
+        };
+
+        // Raccogliamo gli Interventi
+        storeInterventi.getAll().onsuccess = function(e) {
+            backupDati.interventi = e.target.result || [];
+        };
+
+        // Quando la transazione ha finito di leggere tutto, avvia il download
+        tx.oncomplete = function() {
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
+                const downloadAnchor = document.createElement('a');
+                const dataOggi = new Date().toISOString().slice(0,10);
+                
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch (errJson) {
+                console.error("Errore generazione JSON:", errJson);
+                alert("Errore nella creazione del file di backup.");
+            }
+        };
+
+        tx.onerror = function(err) {
+            console.error("Errore nella transazione di backup:", err);
+            alert("Impossibile leggere i dati per il backup.");
+        };
+
+    } catch (erroreGenerale) {
+        console.error("Errore generale della funzione di esportazione:", erroreGenerale);
+        alert("Si è verificato un errore imprevisto durante l'esportazione.");
+    }
+}
+    function importaBackupJSON(input) {
+    if (!input.files || !input.files[0]) return;
+    if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
+        input.value = "";
+        return;
+    }
+    const file = input.files[0];
+    const lettore = new FileReader();
+    lettore.onload = async function(e) {
+        try {
+            const datiImportati = JSON.parse(e.target.result);
+            if (!db) {
+                alert("Errore: Archivio non pronto. Riprova.");
+                return;
+            }
+            
+            // Apriamo la transazione SOLO sulle due tabelle reali
+            let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
+
+            let storeImp = tx.objectStore("impostazioni");
+            let storeInt = tx.objectStore("interventi");
+
+            // Svuotiamo i vecchi dati per evitare duplicati
+            storeImp.clear();
+            storeInt.clear();
+
+            // 1. Ripristiniamo le Impostazioni (che contengono anche i nomi dei veicoli)
+            if (datiImportati.impostazioni) {
+                Object.keys(datiImportati.impostazioni).forEach(chiave => {
+                    storeImp.put(datiImportati.impostazioni[chiave], chiave);
+                });
+            }
+
+            // 2. Ripristiniamo gli Interventi
+            if (Array.isArray(datiImportati.interventi)) {
+                datiImportati.interventi.forEach(intervento => {
+                    storeInt.put(intervento);
+                });
+            }
+            
+            tx.oncomplete = function() {
+                alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                        window.location.href = window.location.pathname + '?clearCache=' + Date.now();
+                    });
+                } else {
+                    window.location.reload(true);
+                }
+            };
+            
+            tx.onerror = (err) => {
+                console.error("Errore transazione:", err);
+                alert("Errore durante il salvataggio dei dati nel database.");
+            };
+        } catch (errore) {
+            console.error("Errore parsing JSON:", errore);
+            alert("File non valido o corrotto.");
+            input.value = "";
+        }
+    };
+    lettore.readAsText(file);
+}
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then((reg) => {
+                console.log('Service Worker registrato con successo!', reg.scope);
+            })
+            .catch((err) => {
+                console.error('Errore nella registrazione del Service Worker:', err);
+            });
+    });
+}
+    
+</script>
+</body>
+</html>
