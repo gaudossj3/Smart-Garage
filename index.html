@@ -1395,7 +1395,7 @@ async function salvaAssicurazione(e) {
         await mostraFotoLibrettoRetroSeEsistente();
         alert("Foto retro eliminata! ✅");
     }
-  
+  }
     async function svuotaDatabaseCompletamente() {
         if (!confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione allo stato iniziale e CANCELLERÀ TUTTI i veicoli e i dati salvati. L'azione non è reversibile.")) return;
         let tx = db.transaction("impostazioni", "readwrite");
