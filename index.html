@@ -1408,72 +1408,6 @@ async function salvaAssicurazione(e) {
         };
     }
 
-    async function esportaBackupJSON() {
-    try {
-        if (!db) {
-            alert("Errore: Database non pronto.");
-            return;
-        }
-
-        // Chiediamo l'accesso alle tabelle esistenti
-        let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readonly");
-        let backupDati = {
-            impostazioni: {},
-            veicoli: [],
-            interventi: []
-        };
-
-        let storeImpostazioni = tx.objectStore("impostazioni");
-        let storeVeicoli = tx.objectStore("veicoli");
-        let storeInterventi = tx.objectStore("interventi");
-
-        // Raccogliamo le Impostazioni
-        storeImpostazioni.openCursor().onsuccess = function(e) {
-            let cursor = e.target.result;
-            if (cursor) {
-                backupDati.impostazioni[cursor.key] = cursor.value;
-                cursor.continue();
-            }
-        };
-
-        // Raccogliamo i Veicoli (gestendo l'eventuale tabella vuota)
-        storeVeicoli.getAll().onsuccess = function(e) {
-            backupDati.veicoli = e.target.result || [];
-        };
-
-        // Raccogliamo gli Interventi (gestendo l'eventuale tabella vuota)
-        storeInterventi.getAll().onsuccess = function(e) {
-            backupDati.interventi = e.target.result || [];
-        };
-
-        // Quando la transazione ha letto tutto con successo, avvia il download
-        tx.oncomplete = function() {
-            try {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
-                const downloadAnchor = document.createElement('a');
-                const dataOggi = new Date().toISOString().slice(0,10);
-                
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                downloadAnchor.remove();
-            } catch (errJson) {
-                console.error("Errore durante la generazione del file JSON:", errJson);
-                alert("Errore nella creazione del file di backup.");
-            }
-        };
-
-        tx.onerror = function(err) {
-            console.error("Errore nella transazione di backup:", err);
-            alert("Impossibile leggere i dati per il backup. Assicurati che il database sia attivo.");
-        };
-
-    } catch (erroreGenerale) {
-        console.error("Errore generale della funzione di esportazione:", erroreGenerale);
-        alert("Si è verificato un errore imprevisto durante l'esportazione.");
-    }
-}
     function importaBackupJSON(input) {
     if (!input.files || !input.files[0]) return;
     if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
@@ -1490,33 +1424,24 @@ async function salvaAssicurazione(e) {
                 return;
             }
             
-            // Apriamo la transazione su tutte e tre le tabelle del database v2
-            let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readwrite");
+            // Apriamo la transazione SOLO sulle due tabelle reali
+            let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
 
             let storeImp = tx.objectStore("impostazioni");
-            let storeVei = tx.objectStore("veicoli");
             let storeInt = tx.objectStore("interventi");
 
-            // Svuotiamo i vecchi dati per evitare duplicati o sovrapposizioni
+            // Svuotiamo i vecchi dati per evitare duplicati
             storeImp.clear();
-            storeVei.clear();
             storeInt.clear();
 
-            // 1. Ripristiniamo le Impostazioni (Se presenti nel file)
+            // 1. Ripristiniamo le Impostazioni (che contengono anche i nomi dei veicoli)
             if (datiImportati.impostazioni) {
                 Object.keys(datiImportati.impostazioni).forEach(chiave => {
                     storeImp.put(datiImportati.impostazioni[chiave], chiave);
                 });
             }
 
-            // 2. Ripristiniamo i Veicoli (Se presenti nel file)
-            if (Array.isArray(datiImportati.veicoli)) {
-                datiImportati.veicoli.forEach(veicolo => {
-                    storeVei.put(veicolo);
-                });
-            }
-
-            // 3. Ripristiniamo gli Interventi (Se presenti nel file)
+            // 2. Ripristiniamo gli Interventi
             if (Array.isArray(datiImportati.interventi)) {
                 datiImportati.interventi.forEach(intervento => {
                     storeInt.put(intervento);
@@ -1543,7 +1468,73 @@ async function salvaAssicurazione(e) {
             };
         } catch (errore) {
             console.error("Errore parsing JSON:", errore);
-            alert("File non valido o corrotto. Assicurati che sia il file .json corretto.");
+            alert("File non valido o corrotto.");
+            input.value = "";
+        }
+    };
+    lettore.readAsText(file);
+}
+    function importaBackupJSON(input) {
+    if (!input.files || !input.files[0]) return;
+    if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
+        input.value = "";
+        return;
+    }
+    const file = input.files[0];
+    const lettore = new FileReader();
+    lettore.onload = async function(e) {
+        try {
+            const datiImportati = JSON.parse(e.target.result);
+            if (!db) {
+                alert("Errore: Archivio non pronto. Riprova.");
+                return;
+            }
+            
+            // Apriamo la transazione SOLO sulle due tabelle reali
+            let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
+
+            let storeImp = tx.objectStore("impostazioni");
+            let storeInt = tx.objectStore("interventi");
+
+            // Svuotiamo i vecchi dati per evitare duplicati
+            storeImp.clear();
+            storeInt.clear();
+
+            // 1. Ripristiniamo le Impostazioni (che contengono anche i nomi dei veicoli)
+            if (datiImportati.impostazioni) {
+                Object.keys(datiImportati.impostazioni).forEach(chiave => {
+                    storeImp.put(datiImportati.impostazioni[chiave], chiave);
+                });
+            }
+
+            // 2. Ripristiniamo gli Interventi
+            if (Array.isArray(datiImportati.interventi)) {
+                datiImportati.interventi.forEach(intervento => {
+                    storeInt.put(intervento);
+                });
+            }
+            
+            tx.oncomplete = function() {
+                alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                        window.location.href = window.location.pathname + '?clearCache=' + Date.now();
+                    });
+                } else {
+                    window.location.reload(true);
+                }
+            };
+            
+            tx.onerror = (err) => {
+                console.error("Errore transazione:", err);
+                alert("Errore durante il salvataggio dei dati nel database.");
+            };
+        } catch (errore) {
+            console.error("Errore parsing JSON:", errore);
+            alert("File non valido o corrotto.");
             input.value = "";
         }
     };
