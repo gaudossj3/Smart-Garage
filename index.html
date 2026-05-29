@@ -561,6 +561,7 @@
     ];
 
 const request = indexedDB.open("GarageSmartDB", 2);
+const APP_VERSION = "v1.0";
 request.onupgradeneeded = function(e) {
     let database = e.target.result;
     if (!database.objectStoreNames.contains("impostazioni")) {
