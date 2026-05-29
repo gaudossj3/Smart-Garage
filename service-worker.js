@@ -1,9 +1,9 @@
 const CACHE_NAME = 'garage-smart-v5';
 const ASSETS = [
-  '/Smart-Garage/',
-  '/Smart-Garage/index.html',
-  '/Smart-Garage/manifest.json',
-  '/Smart-Garage/icon.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.png' // 
 ];
 
 self.addEventListener('install', (e) => {
@@ -30,8 +30,20 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
+    fetch(e.request)
+      .then((response) => {
+        // Se internet funziona, prendi il file aggiornato e salvalo in cache
+        if (response && response.status === 200) {
+          let responseCopy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseCopy);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Se internet non c'è (sei offline), usa il file in cache
+        return caches.match(e.request);
+      })
   );
 });
