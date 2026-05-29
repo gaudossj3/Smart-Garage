@@ -1,4 +1,4 @@
-const CACHE_NAME = 'garage-smart-v12';
+const CACHE_NAME = 'garage-smart-v13';
 const ASSETS = [
   './',
   './index.html',
