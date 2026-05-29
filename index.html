@@ -1440,68 +1440,67 @@ async function salvaAssicurazione(e) {
             return;
         }
 
-        let tx = db.transaction(["impostazioni", "interventi"], "readonly");
-        let backupDati = {
-            impostazioni: {},
-            interventi: []
-        };
-
-        let storeImp = tx.objectStore("impostazioni");
-        let storeInt = tx.objectStore("interventi");
-
-        let reqChiavi = storeImp.getAllKeys();
-        let reqValori = storeImp.getAll();
-        let reqInterventi = storeInt.getAll();
-
-        tx.oncomplete = function() {
-            let chiavi = reqChiavi.result || [];
-            let valori = reqValori.result || [];
-            
-            chiavi.forEach((chiave, indice) => {
-                // Evitiamo di duplicare la chiave "interventi" dentro le impostazioni
-                if (chiave !== "interventi") {
-                    backupDati.impostazioni[chiave] = valori[indice];
-                }
+        const leggiImpostazioni = () => {
+            return new Promise((resolve, reject) => {
+                let tx = db.transaction("impostazioni", "readonly");
+                let store = tx.objectStore("impostazioni");
+                let reqChiavi = store.getAllKeys();
+                let reqValori = store.getAll();
+                
+                tx.oncomplete = () => {
+                    let mappa = {};
+                    let chiavi = reqChiavi.result || [];
+                    let valori = reqValori.result || [];
+                    chiavi.forEach((chiave, indice) => {
+                        if (chiave !== "interventi") {
+                            mappa[chiave] = valori[indice];
+                        }
+                    });
+                    resolve(mappa);
+                };
+                tx.onerror = (err) => reject(err);
             });
-
-            // Se nel vecchio backup gli interventi erano finiti dentro le impostazioni, li recuperiamo da lì
-            if (reqInterventi.result && reqInterventi.result.length > 0) {
-                backupDati.interventi = reqInterventi.result;
-            } else if (backupDati.impostazioni.interventi) {
-                backupDati.interventi = backupDati.impostazioni.interventi;
-                delete backupDati.impostazioni.interventi;
-            }
-
-            try {
-                const jsonString = JSON.stringify(backupDati);
-                const blob = new Blob([jsonString], { type: "application/json;charset=utf-8" });
-                const urlURL = URL.createObjectURL(blob);
-                
-                const downloadAnchor = document.createElement('a');
-                const dataOggi = new Date().toISOString().slice(0,10);
-                
-                downloadAnchor.setAttribute("href", urlURL);
-                downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                
-                setTimeout(() => {
-                    downloadAnchor.remove();
-                    URL.revokeObjectURL(urlURL);
-                }, 100);
-            } catch (errJson) {
-                console.error("Errore generazione JSON:", errJson);
-                alert("Errore nella compressione dei dati. File troppo pesante.");
-            }
         };
 
-        tx.onerror = function(err) {
-            console.error("Errore nel backup:", err);
-            alert("Impossibile leggere i dati per il backup.");
+        const leggiInterventi = () => {
+            return new Promise((resolve, reject) => {
+                let tx = db.transaction("interventi", "readonly");
+                let store = tx.objectStore("interventi");
+                let req = store.getAll();
+                
+                tx.oncomplete = () => resolve(req.result || []);
+                tx.onerror = (err) => reject(err);
+            });
         };
+
+        const datiImpostazioni = await leggiImpostazioni();
+        const datiInterventi = await leggiInterventi();
+
+        let backupDati = {
+            impostazioni: datiImpostazioni,
+            interventi: datiInterventi
+        };
+
+        const jsonString = JSON.stringify(backupDati);
+        const blob = new Blob([jsonString], { type: "application/json;charset=utf-8" });
+        const urlURL = URL.createObjectURL(blob);
+        
+        const downloadAnchor = document.createElement('a');
+        const dataOggi = new Date().toISOString().slice(0,10);
+        
+        downloadAnchor.setAttribute("href", urlURL);
+        downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        
+        setTimeout(() => {
+            downloadAnchor.remove();
+            URL.revokeObjectURL(urlURL);
+        }, 100);
 
     } catch (erroreGenerale) {
-        console.error("Errore generale esportazione:", erroreGenerale);
+        console.error("Errore durante l'esportazione del backup:", erroreGenerale);
+        alert("Si è verificato un errore durante la generazione del file di backup.");
     }
 }
 
@@ -1522,23 +1521,34 @@ function importaBackupJSON(input) {
                 return;
             }
             
-            let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
-            let storeImp = tx.objectStore("impostazioni");
-            let storeInt = tx.objectStore("interventi");
-
-            storeImp.clear();
-            storeInt.clear();
-
-            // 1. Ripristino delle Impostazioni
-            if (datiImportati.impostazioni) {
-                Object.keys(datiImportati.impostazioni).forEach(chiave => {
-                    if (chiave !== "interventi") {
-                        storeImp.put(datiImportati.impostazioni[chiave], chiave);
-                    }
+            const salvaImpostazione = (chiave, valore) => {
+                return new Promise((resolve, reject) => {
+                    let tx = db.transaction("impostazioni", "readwrite");
+                    let store = tx.objectStore("impostazioni");
+                    let req = store.put(valore, chiave);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (err) => reject(err);
                 });
+            };
+
+            const salvaInterventoRecord = (intervento) => {
+                return new Promise((resolve, reject) => {
+                    let tx = db.transaction("interventi", "readwrite");
+                    let store = tx.objectStore("interventi");
+                    let req = store.put(intervento);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (err) => reject(err);
+                });
+            };
+
+            if (datiImportati.impostazioni) {
+                for (const chiave of Object.keys(datiImportati.impostazioni)) {
+                    if (chiave !== "interventi") {
+                        await salvaImpostazione(chiave, datiImportati.impostazioni[chiave]);
+                    }
+                }
             }
 
-            // 2. Ripristino degli Interventi (Corretto e Compatibile)
             let listaInterventi = [];
             if (Array.isArray(datiImportati.interventi)) {
                 listaInterventi = datiImportati.interventi;
@@ -1546,28 +1556,22 @@ function importaBackupJSON(input) {
                 listaInterventi = datiImportati.impostazioni.interventi;
             }
 
-            listaInterventi.forEach(intervento => {
-                storeInt.put(intervento);
-            });
+            for (const intervento of listaInterventi) {
+                await salvaInterventoRecord(intervento);
+            }
             
-            tx.oncomplete = function() {
-                alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) {
-                            registration.unregister();
-                        }
-                        window.location.href = window.location.pathname + '?clearCache=' + Date.now();
-                    });
-                } else {
-                    window.location.reload(true);
-                }
-            };
-            
-            tx.onerror = (err) => {
-                console.error("Errore transazione:", err);
-                alert("Errore durante il salvataggio dei dati nel database.");
-            };
+            alert("Backup importato con successo! Tutti i dati e le immagini sono stati memorizzati. ✅");
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                    window.location.href = window.location.pathname + '?clearCache=' + Date.now();
+                });
+            } else {
+                window.location.reload(true);
+            }
+
         } catch (errore) {
             console.error("Errore parsing JSON:", errore);
             alert("File non valido o corrotto.");
