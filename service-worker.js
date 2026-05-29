@@ -3,13 +3,18 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png' // 
+  './icon-192.png',
+  './icon-192.png'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      return Promise.all(
+        ASSETS.map((url) => {
+          return cache.add(url).catch((err) => console.warn('Mancato salvataggio in cache per:', url, err));
+        })
+      );
     }).then(() => self.skipWaiting())
   );
 });
