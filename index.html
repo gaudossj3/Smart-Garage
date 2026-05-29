@@ -322,20 +322,20 @@
                 </div>
                 <div class="form-group">
                     <label>Lavori Eseguiti</label>
-                    <div class="checkbox-grid" id="listaLavori">
+                 <div class="checkbox-grid" id="listaLavori">
                         <label class="checkbox-item" for="chkCambioOlioDefault"><input type="checkbox" id="chkCambioOlioDefault" value="Cambio olio + filtro olio"> Cambio olio + filtro olio</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Filtro abitacolo"> Filtro abitacolo</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Filtro Aria"> Filtro Aria</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Candele"> Candele</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Pastiglie"> Pastiglie</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Dischi freni"> Dischi freni</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Filtro gasolio"> Filtro gasolio</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Filtro benzina"> Filtro benzina</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Sostituzione Batteria"> Sostituzione Batteria</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Sostituzione Gomme"> Sostituzione Gomme</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Inversione gomme"> Inversione gomme</label>
-                        <label class="checkbox-item"><input type="checkbox" value="Distribuzione"> Distribuzione</label>
-                    </div>
+                        <label class="checkbox-item" for="chkFiltroAbitacolo"><input type="checkbox" id="chkFiltroAbitacolo" value="Filtro abitacolo"> Filtro abitacolo</label>
+                        <label class="checkbox-item" for="chkFiltroAria"><input type="checkbox" id="chkFiltroAria" value="Filtro Aria"> Filtro Aria</label>
+                        <label class="checkbox-item" for="chkCandele"><input type="checkbox" id="chkCandele" value="Candele"> Candele</label>
+                        <label class="checkbox-item" for="chkPastiglie"><input type="checkbox" id="chkPastiglie" value="Pastiglie"> Pastiglie</label>
+                        <label class="checkbox-item" for="chkDischiFreni"><input type="checkbox" id="chkDischiFreni" value="Dischi freni"> Dischi freni</label>
+                        <label class="checkbox-item" for="chkFiltroGasolio"><input type="checkbox" id="chkFiltroGasolio" value="Filtro gasolio"> Filtro gasolio</label>
+                        <label class="checkbox-item" for="chkFiltroBenzina"><input type="checkbox" id="chkFiltroBenzina" value="Filtro benzina"> Filtro benzina</label>
+                        <label class="checkbox-item" for="chkSostituzioneBatteria"><input type="checkbox" id="chkSostituzioneBatteria" value="Sostituzione Batteria"> Sostituzione Batteria</label>
+                        <label class="checkbox-item" for="chkSostituzioneGomme"><input type="checkbox" id="chkSostituzioneGomme" value="Sostituzione Gomme"> Sostituzione Gomme</label>
+                        <label class="checkbox-item" for="chkInversioneGomme"><input type="checkbox" id="chkInversioneGomme" value="Inversione gomme"> Inversione gomme</label>
+                        <label class="checkbox-item" for="chkDistribuzione"><input type="checkbox" id="chkDistribuzione" value="Distribuzione"> Distributione</label>
+                    </div>   
                 </div>
                 <button type="submit" class="btn-submit btn-blue" id="btnSalva">Salva Intervento</button>
             </form>
@@ -478,10 +478,10 @@
                 <img src="" class="preview-doc-img hidden" id="immagineAnteprima" onclick="apriImmagineSchermoIntero(this.src)">
                 <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFoto" onclick="cancellaFotoLibrettoDiretta()">×</button>
             </div>
-            <div class="form-group" style="margin-top: 20px;">
-                <label for="fileLibrettoRetro">Carica Foto Retro</label>
-                <input type="file" id="fileLibrettoRetro" accept="image/*" onchange="comprimerESalvaImmagineRetro(this, 'libretto_retro')">
-            </div>
+            <div class="form-group">
+                    <label for="fileLibretto">Carica Foto Fronte</label>
+                    <input type="file" id="fileLibretto" accept="image/*" onchange="comprimerESalvaImmagine(this, 'libretto')">
+                </div>
             <div class="preview-doc-container" id="contenitoreAnteprimaRetro">
                 <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFotoRetro">Nessun retro salvato.</p>
                 <img src="" class="preview-doc-img hidden" id="immagineAnteprimaRetro" onclick="apriImmagineSchermoIntero(this.src)">
