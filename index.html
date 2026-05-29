@@ -1409,76 +1409,131 @@ async function salvaAssicurazione(e) {
     }
 
     async function esportaBackupJSON() {
-        let tx = db.transaction("impostazioni", "readonly");
-        let store = tx.objectStore("impostazioni");
-        let req = store.openCursor();
-        let backupDati = {};
-        req.onsuccess = function(e) {
-            let cursor = e.target.result;
-            if (cursor) {
-                backupDati[cursor.key] = cursor.value;
-                cursor.continue();
-            } else {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati));
-                const downloadAnchor = document.createElement('a');
-                const dataOggi = new Date().toISOString().slice(0,10);
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                downloadAnchor.remove();
-            }
-        };
-    }
+    // 1. Chiediamo l'accesso a tutte e tre le tabelle del tuo database v2
+    let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readonly");
+    let backupDati = {
+        impostazioni: {},
+        veicoli: [],
+        interventi: []
+    };
+
+    // 2. Svuotiamo e raccogliamo i dati di ciascuna tabella
+    let storeImpostazioni = tx.objectStore("impostazioni");
+    let storeVeicoli = tx.objectStore("veicoli");
+    let storeInterventi = tx.objectStore("interventi");
+
+    // Leggiamo le Impostazioni
+    storeImpostazioni.openCursor().onsuccess = function(e) {
+        let cursor = e.target.result;
+        if (cursor) {
+            backupDati.impostazioni[cursor.key] = cursor.value;
+            cursor.continue();
+        }
+    };
+
+    // Leggiamo i Veicoli
+    storeVeicoli.getAll().onsuccess = function(e) {
+        backupDati.veicoli = e.target.result || [];
+    };
+
+    // Leggiamo gli Interventi
+    storeInterventi.getAll().onsuccess = function(e) {
+        backupDati.interventi = e.target.result || [];
+    };
+
+    // 3. Quando la transazione ha finito di leggere tutto con successo, scarica il file
+    tx.oncomplete = function() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDati, null, 2));
+        const downloadAnchor = document.createElement('a');
+        const dataOggi = new Date().toISOString().slice(0,10);
+        
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `garage_smart_backup_${dataOggi}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    };
+
+    tx.onerror = function(err) {
+        console.error("Errore durante la creazione del backup:", err);
+    };
+}
 
     function importaBackupJSON(input) {
-        if (!input.files || !input.files[0]) return;
-        if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
-            input.value = "";
-            return;
-        }
-        const file = input.files[0];
-        const lettore = new FileReader();
-        lettore.onload = async function(e) {
-            try {
-                const datiImportati = JSON.parse(e.target.result);
-                if (!db) {
-                    alert("Errore: Archivio non pronto. Riprova.");
-                    return;
-                }
-                let tx = db.transaction("impostazioni", "readwrite");
-                let store = tx.objectStore("impostazioni");
-                store.clear();
-                
-                Object.keys(datiImportati).forEach(chiave => {
-                    store.put(datiImportati[chiave], chiave);
-                });
-                
-                tx.oncomplete = function() {
-                    alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                            for(let registration of registrations) {
-                                registration.unregister();
-                            }
-                            window.location.href = window.location.pathname + '?clearCache=' + Date.now();
-                        });
-                    } else {
-                        window.location.reload(true);
-                    }
-                };
-                tx.onerror = (err) => {
-                    console.error("Errore transazione:", err);
-                    alert("Errore durante il salvataggio dei dati nel database.");
-                };
-            } catch (errore) {
-                console.error("Errore parsing JSON:", errore);
-                alert("File non valido o corrotto. Assicurati che sia il file .json corretto.");
-                input.value = "";
-            }
-        };
-        lettore.readAsText(file);
+    if (!input.files || !input.files[0]) return;
+    if (!confirm("Importando questo file sovrascriverai tutti i dati attuali. Vuoi procedere?")) {
+        input.value = "";
+        return;
     }
+    const file = input.files[0];
+    const lettore = new FileReader();
+    lettore.onload = async function(e) {
+        try {
+            const datiImportati = JSON.parse(e.target.result);
+            if (!db) {
+                alert("Errore: Archivio non pronto. Riprova.");
+                return;
+            }
+            
+            // Apriamo la transazione su tutte e tre le tabelle del database v2
+            let tx = db.transaction(["impostazioni", "veicoli", "interventi"], "readwrite");
+
+            let storeImp = tx.objectStore("impostazioni");
+            let storeVei = tx.objectStore("veicoli");
+            let storeInt = tx.objectStore("interventi");
+
+            // Svuotiamo i vecchi dati per evitare duplicati o sovrapposizioni
+            storeImp.clear();
+            storeVei.clear();
+            storeInt.clear();
+
+            // 1. Ripristiniamo le Impostazioni (Se presenti nel file)
+            if (datiImportati.impostazioni) {
+                Object.keys(datiImportati.impostazioni).forEach(chiave => {
+                    storeImp.put(datiImportati.impostazioni[chiave], chiave);
+                });
+            }
+
+            // 2. Ripristiniamo i Veicoli (Se presenti nel file)
+            if (Array.isArray(datiImportati.veicoli)) {
+                datiImportati.veicoli.forEach(veicolo => {
+                    storeVei.put(veicolo);
+                });
+            }
+
+            // 3. Ripristiniamo gli Interventi (Se presenti nel file)
+            if (Array.isArray(datiImportati.interventi)) {
+                datiImportati.interventi.forEach(intervento => {
+                    storeInt.put(intervento);
+                });
+            }
+            
+            tx.oncomplete = function() {
+                alert("Backup importato con successo! L'applicazione verrà ricaricata. ✅");
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                        window.location.href = window.location.pathname + '?clearCache=' + Date.now();
+                    });
+                } else {
+                    window.location.reload(true);
+                }
+            };
+            
+            tx.onerror = (err) => {
+                console.error("Errore transazione:", err);
+                alert("Errore durante il salvataggio dei dati nel database.");
+            };
+        } catch (errore) {
+            console.error("Errore parsing JSON:", errore);
+            alert("File non valido o corrotto. Assicurati che sia il file .json corretto.");
+            input.value = "";
+        }
+    };
+    lettore.readAsText(file);
+}
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
