@@ -1412,21 +1412,43 @@ async function salvaAssicurazione(e) {
     }
  
     async function svuotaDatabaseCompletamente() {
-        if (!confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione allo stato iniziale e CANCELLERÀ TUTTI i veicoli e i dati salvati. L'azione non è reversibile.")) return;
+    if (!confirm("⚠️ SEI SICURO?\nQuesto resetterà l'applicazione allo stato iniziale e CANCELLERÀ TUTTI i veicoli, lo storico e i dati salvati. L'azione non è reversibile.")) return;
+    
+    try {
+        // Apriamo una transazione che blocca ENTRAMBI gli object store contemporaneamente
+        let tx = db.transaction(["impostazioni", "interventi"], "readwrite");
         
+        // Svuotiamo il primo store (anagrafiche, foto, configurazioni)
+        tx.objectStore("impostazioni").clear();
+        
+        // Svuotiamo il secondo store (il vero responsabile dei record fantasma)
+        tx.objectStore("interventi").clear();
+        
+        tx.oncomplete = () => {
+            localStorage.clear();
+            alert("Database ripulito a fondo con successo! ♻️");
+            location.reload();
+        };
+        
+        tx.onerror = (err) => {
+            console.error("Errore durante il clear degli store:", err);
+            alert("Si è verificato un errore durante la pulizia profonda.");
+        };
+    } catch (e) {
+        console.error("Errore transazione di reset:", e);
+        // Backup di emergenza se la transazione combinata fallisce su vecchi browser
         let tx1 = db.transaction("impostazioni", "readwrite");
         tx1.objectStore("impostazioni").clear();
-        
         tx1.oncomplete = () => {
             let tx2 = db.transaction("interventi", "readwrite");
             tx2.objectStore("interventi").clear();
             tx2.oncomplete = () => {
                 localStorage.clear();
-                alert("Database svuotato con successo! ♻️");
                 location.reload();
             };
         };
     }
+}
 
 async function esportaBackupJSON() {
     try {
