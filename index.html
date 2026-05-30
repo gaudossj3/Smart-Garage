@@ -416,7 +416,7 @@
                             <label for="fileBottiglia" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Carica Foto Etichetta Olio</label>
                             <input type="file" id="fileBottiglia" accept=".jpg,.jpeg,.png" onchange="comprimerESalvaImmagine(this, 'olio')" style="display:none;">
                             <button type="button" class="btn btn-blue" style="background-color: var(--teal); width: auto; padding: 6px 10px; font-size: 12px; display:inline-block;" onclick="document.getElementById('fileBottiglia').click()">Scegli Foto</button>
-                            <span id="nomeFileOlio" style="font-size: 11px; color: #1e40af; margin-left: 6px;">Richiesti: .jpg / .jpeg / .png</span>
+                            <span id="nomeFileOlio" style="font-size: 11px; color: #1e40af; margin-left: 6px;">Formati ammessi: .jpg / .jpeg / .png</span>
                         </div>
                     </div>
                     <div class="contenitore-anteprima-olio-compatto hidden" id="contenitoreAnteprimaOlio">
@@ -434,7 +434,7 @@
                     <label for="fileResetService" style="color: #92400e; font-size: 12px;">Carica una foto o una clip video del reset service:</label>
                     <input type="file" id="fileResetService" accept=".jpg,.jpeg,.png,.mp4" onchange="salvaFileResetService(this)" style="display:none;">
                     <button type="button" class="btn btn-blue" style="background-color: #d97706; width: auto; padding: 7px 12px; font-size: 13px;" onclick="document.getElementById('fileResetService').click()">Scegli Foto o Video</button>
-                    <span id="nomeFileReset" style="font-size: 12px; color: #92400e; margin-left: 10px;">Ammessi: .jpg / .jpeg / .png / .mp4</span>
+                    <span id="nomeFileReset" style="font-size: 12px; color: #92400e; margin-left: 10px;">Formati ammessi: .jpg / .jpeg / .png / .mp4</span>
                 </div>
                 <div class="preview-doc-container hidden" id="contenitoreAnteprimaReset">
                     <img src="" class="preview-doc-img hidden" id="immagineAnteprimaReset" onclick="apriImmagineSchermoIntero(this.src)">
@@ -773,7 +773,7 @@ request.onerror = function() {
             videoTag.classList.add('hidden'); videoTag.src = "";
             btnDelete.classList.add('hidden');
             document.getElementById('fileResetService').value = "";
-            document.getElementById('nomeFileReset').innerText = "Ammessi: .jpg / .jpeg / .png / .mp4"; 
+            document.getElementById('nomeFileReset').innerText = "Formati ammessi: .jpg / .jpeg / .png / .mp4"; 
         }
     }
 
