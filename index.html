@@ -414,7 +414,9 @@
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label for="fileBottiglia" style="color: #1e40af; font-size: 12px; margin-bottom: 3px;">Carica Foto Etichetta Olio</label>
-                            <input type="file" id="fileBottiglia" accept="image/*" onchange="comprimerESalvaImmagine(this, 'olio')" style="padding: 4px; font-size: 12px;">
+                            <input type="file" id="fileBottiglia" accept=".jpg,.jpeg,.png" onchange="comprimerESalvaImmagine(this, 'olio')" style="display:none;">
+                            <button type="button" class="btn btn-blue" style="background-color: var(--teal); width: auto; padding: 6px 10px; font-size: 12px; display:inline-block;" onclick="document.getElementById('fileBottiglia').click()">Scegli Foto</button>
+                            <span id="nomeFileOlio" style="font-size: 11px; color: #1e40af; margin-left: 6px;">Richiesti: .jpg / .jpeg / .png</span>
                         </div>
                     </div>
                     <div class="contenitore-anteprima-olio-compatto hidden" id="contenitoreAnteprimaOlio">
@@ -429,8 +431,10 @@
             <div class="card hidden" id="cardModuloResetService" style="background: #fdf6b2; border: 1px solid #fca5a5; margin-top: 5px; margin-bottom: 5px;">
                 <h3 style="margin-top:0; font-size:15px; color: #92400e; border-bottom: 1px dashed #fcd34d; padding-bottom: 4px; margin-bottom: 10px;">🔄 Procedura Azzeramento Service</h3>
                 <div class="form-group">
-                    <label for="fileResetService" style="color: #92400e; font-size: 12px;">Carica una foto o una clip video del reset spia:</label>
-                    <input type="file" id="fileResetService" accept="image/*,video/*" onchange="salvaFileResetService(this)" style="padding: 4px; font-size: 13px;">
+                    <label for="fileResetService" style="color: #92400e; font-size: 12px;">Carica una foto o una clip video del reset service:</label>
+                    <input type="file" id="fileResetService" accept=".jpg,.jpeg,.png,.mp4" onchange="salvaFileResetService(this)" style="display:none;">
+                    <button type="button" class="btn btn-blue" style="background-color: #d97706; width: auto; padding: 7px 12px; font-size: 13px;" onclick="document.getElementById('fileResetService').click()">Scegli Foto o Video</button>
+                    <span id="nomeFileReset" style="font-size: 12px; color: #92400e; margin-left: 10px;">Ammessi: .jpg / .jpeg / .png / .mp4</span>
                 </div>
                 <div class="preview-doc-container hidden" id="contenitoreAnteprimaReset">
                     <img src="" class="preview-doc-img hidden" id="immagineAnteprimaReset" onclick="apriImmagineSchermoIntero(this.src)">
@@ -444,8 +448,10 @@
             <div class="card hidden" id="cardModuloFotoLibretto" style="margin-top: 5px; margin-bottom: 5px;">
                 <h2 style="color: #0891b2; text-align: left; margin-top:0;">Libretto Circolazione</h2>
                 <div class="form-group">
-                    <label for="fileLibretto">Carica Foto Fronte</label>
-                    <input type="file" id="fileLibretto" accept="image/*" onchange="comprimerESalvaImmagine(this, 'libretto')">
+                    <label for="fileLibretto" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Carica Foto Fronte</label>
+                    <input type="file" id="fileLibretto" accept=".jpg,.jpeg,.png" onchange="comprimerESalvaImmagine(this, 'libretto')" style="display:none;">
+                    <button type="button" class="btn btn-blue" style="background-color: #0891b2; width: auto; padding: 8px 12px; font-size: 13px;" onclick="document.getElementById('fileLibretto').click()">Scegli Foto Fronte</button>
+                    <span id="nomeFileLibretto" style="font-size: 12px; color: #64748b; margin-left: 10px;">Formati ammessi: .jpg / .jpeg / .png</span>
                 </div>
                 <div class="preview-doc-container" id="contenitoreAnteprima">
                     <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFoto">Nessuna foto del fronte salvata.</p>
@@ -453,8 +459,10 @@
                     <button type="button" class="btn-delete-photo hidden" id="btnRimuoviFoto" onclick="cancellaFotoLibrettoDiretta()">×</button>
                 </div>
                 <div class="form-group" style="margin-top: 20px;">
-                    <label for="fileLibrettoRetro">Carica Foto Retro</label>
-                    <input type="file" id="fileLibrettoRetro" accept="image/*" onchange="comprimerESalvaImmagineRetro(this, 'libretto_retro')">
+                    <label for="fileLibrettoRetro" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Carica Foto Retro</label>
+                    <input type="file" id="fileLibrettoRetro" accept=".jpg,.jpeg,.png" onchange="comprimerESalvaImmagineRetro(this, 'libretto_retro')" style="display:none;">
+                    <button type="button" class="btn btn-blue" style="background-color: #0891b2; width: auto; padding: 8px 12px; font-size: 13px;" onclick="document.getElementById('fileLibrettoRetro').click()">Scegli Foto Retro</button>
+                    <span id="nomeFileLibrettoRetro" style="font-size: 12px; color: #64748b; margin-left: 10px;">Formati ammessi: .jpg / .jpeg / .png</span>
                 </div>
                 <div class="preview-doc-container" id="contenitoreAnteprimaRetro">
                     <p style="color:#64748b; font-size:13px; margin:0;" id="testoVuotoFotoRetro">Nessun retro salvato.</p>
@@ -736,6 +744,7 @@ request.onerror = function() {
             alert("File di reset service abbinato correttamente! ✅");
         };
         lettore.readAsDataURL(file);
+        if(input.files[0]) document.getElementById('nomeFileReset').innerText = "Selezionato: " + input.files[0].name;
     }
 
     async function mostraFileResetSeEsistente() {
@@ -764,6 +773,7 @@ request.onerror = function() {
             videoTag.classList.add('hidden'); videoTag.src = "";
             btnDelete.classList.add('hidden');
             document.getElementById('fileResetService').value = "";
+            document.getElementById('nomeFileReset').innerText = "Ammessi: .jpg / .jpeg / .png / .mp4"; 
         }
     }
 
