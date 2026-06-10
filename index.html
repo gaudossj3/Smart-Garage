@@ -1345,21 +1345,22 @@ async function salvaAssicurazione(e) {
         chiudiModal(); await aggiornaInterfaccia();
     }
 
-    async function calcolaScadenzeFiltrate(interventi, targaVeicolo) {
-        const display = document.getElementById('statoTagliando');
-        let htmlScadenze = ""; const oggi = new Date();
+    async function calcolaScadenzeFiltrate(interventi, targaVeicolo, kmForzati = null) {
+    const display = document.getElementById('statoTagliando');
+    let htmlScadenze = ""; const oggi = new Date();
 
-        const cambiOlio = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'meccanico' && i.tipi && i.tipi.includes('Cambio olio + filtro olio'));
-        if (cambiOlio.length === 0) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Olio Motore</div><div>Nessun cambio registrato nello storico.</div></div>`;
-        } else {
-            const ultimoCambio = cambiOlio[cambiOlio.length - 1];
-            let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
-            const configKm = parseInt(configurazioniMappa[targaVeicolo]) || 15000; 
-            const kmScadenza = parseInt(ultimoCambio.km) + configKm;
-            
-            let kmAttualiMezzo;
-        if (kmForzati !== null) {
+    const cambiOlio = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'meccanico' && i.tipi && i.tipi.includes('Cambio olio + filtro olio'));
+    if (cambiOlio.length === 0) {
+        htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Olio Motore</div><div>Nessun cambio registrato nello storico.</div></div>`;
+    } else {
+        const ultimoCambio = cambiOlio[cambiOlio.length - 1];
+        let configurazioniMappa = await leggiDato("garage_config_intervalli") || {};
+        const configKm = parseInt(configurazioniMappa[targaVeicolo]) || 15000; 
+        const kmScadenza = parseInt(ultimoCambio.km) + configKm;
+        
+        // Se passiamo i km digitati a schermo usiamo quelli, altrimenti leggiamo IndexedDB
+        let kmAttualiMezzo;
+        if (kmForzati !== null && !isNaN(kmForzati)) {
             kmAttualiMezzo = kmForzati;
         } else {
             const kmMappa = await leggiDato("garage_km_attuali") || {};
@@ -1377,55 +1378,54 @@ async function salvaAssicurazione(e) {
         }
     }
 
-        const revisioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'revisione');
-        let mappaImm = await leggiDato("garage_immatricolazioni") || {};
-        let dataImmatricolazioneStringa = mappaImm[targaVeicolo];
-        if (revisioniEffettuate.length === 0 && !dataImmatricolazioneStringa) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>📋 Revisione Ministeriale</div><div>Inserisci la data di immatricolazione.</div></div>`;
+    const revisioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'revisione');
+    let mappaImm = await leggiDato("garage_immatricolazioni") || {};
+    let dataImmatricolazioneStringa = mappaImm[targaVeicolo];
+    if (revisioniEffettuate.length === 0 && !dataImmatricolazioneStringa) {
+        htmlScadenze += `<div class="scadenza-box status-warning"><div>📋 Revisione Ministeriale</div><div>Inserisci la data di immatricolazione.</div></div>`;
+    } else {
+        let dataScadenzaGrezza; let prima = false;
+        if (revisioniEffettuate.length === 0) {
+            const dataImm = new Date(dataImmatricolazioneStringa);
+            dataScadenzaGrezza = new Date(dataImm.setFullYear(dataImm.getFullYear() + 4)); prima = true;
         } else {
-            let dataScadenzaGrezza; let prima = false;
-            if (revisioniEffettuate.length === 0) {
-                const dataImm = new Date(dataImmatricolazioneStringa);
-                dataScadenzaGrezza = new Date(dataImm.setFullYear(dataImm.getFullYear() + 4)); prima = true;
-            } else {
-                const ultimaRev = revisioniEffettuate[revisioniEffettuate.length - 1]; const dataUltimaRev = new Date(ultimaRev.data);
-                dataScadenzaGrezza = new Date(dataUltimaRev.setFullYear(dataUltimaRev.getFullYear() + 2));
-            }
-            
-            let dataScadenzaRev = new Date(dataScadenzaGrezza.getFullYear(), dataScadenzaGrezza.getMonth() + 1, 0);
-            const giorniRimanentiRev = Math.ceil((dataScadenzaRev - oggi) / (1000 * 60 * 60 * 24));
-            let tipoStato = prima ? "Prima Revisione OK ✅" : "Revisione Periodica OK ✅";
-            let tipoScaduto = prima ? "⚠️ PRIMA REVISIONE SCADUTA!" : "⚠️ REVISIONE PERIODICA SCADUTA!";
-            let tipoInScadenza = prima ? "📋 Prima Revisione in scadenza!" : "📋 Revisione Periodica in scadenza!";
-
-            if (giorniRimanentiRev <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>${tipoScaduto}</div><div>Scaduta il ${dataScadenzaRev.toLocaleDateString('it-IT')}!</div></div>`;
-            } else if (giorniRimanentiRev <= 30) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>${tipoInScadenza}</div><div>Mancano ${giorniRimanentiRev} giorni (Entro il: ${dataScadenzaRev.toLocaleDateString('it-IT')}).</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>${tipoStato}</div><div>Scadenza valida fino al: ${dataScadenzaRev.toLocaleDateString('it-IT')}</div></div>`;
-            }
+            const ultimaRev = revisioniEffettuate[revisioniEffettuate.length - 1]; const dataUltimaRev = new Date(ultimaRev.data);
+            dataScadenzaGrezza = new Date(dataUltimaRev.setFullYear(dataUltimaRev.getFullYear() + 2));
         }
+        
+        let dataScadenzaRev = new Date(dataScadenzaGrezza.getFullYear(), dataScadenzaGrezza.getMonth() + 1, 0);
+        const giorniRimanentiRev = Math.ceil((dataScadenzaRev - oggi) / (1000 * 60 * 60 * 24));
+        let tipoStato = prima ? "Prima Revisione OK ✅" : "Revisione Periodica OK ✅";
+        let tipoScaduto = prima ? "⚠️ PRIMA REVISIONE SCADUTA!" : "⚠️ REVISIONE PERIODICA SCADUTA!";
+        let tipoInScadenza = prima ? "📋 Prima Revisione in scadenza!" : "📋 Revisione Periodica in scadenza!";
 
-        const assicurazioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'assicurazione');
-        if (assicurazioniEffettuate.length === 0) {
-            htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ Assicurazione RCA</div><div>Nessun rinnovo registrato.</div></div>`;
+        if (giorniRimanentiRev <= 0) {
+            htmlScadenze += `<div class="scadenza-box status-danger"><div>${tipoScaduto}</div><div>Scaduta il ${dataScadenzaRev.toLocaleDateString('it-IT')}!</div></div>`;
+        } else if (giorniRimanentiRev <= 30) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>${tipoInScadenza}</div><div>Mancano ${giorniRimanentiRev} giorni (Entro il: ${dataScadenzaRev.toLocaleDateString('it-IT')}).</div></div>`;
         } else {
-            const ultimaAss = assicurazioniEffettuate[assicurazioniEffettuate.length - 1]; const dataUltimaAss = new Date(ultimaAss.data);
-            const dataScadenzaAss = new Date(dataUltimaAss.setFullYear(dataUltimaAss.getFullYear() + 1));
-            const giorniRimanentiAss = Math.ceil((dataScadenzaAss - oggi) / (1000 * 60 * 60 * 24));
-            
-            if (giorniRimanentiAss <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ POLIZZA RCA SCADUTA!</div><div>Scaduta il ${dataScadenzaAss.toLocaleDateString('it-IT')}!</div></div>`;
-            } else if (giorniRimanentiAss <= 15) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ RCA in scadenza!</div><div>Mancano solo ${giorniRimanentiAss} giorni.</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>Assicurazione RCA valida ✅</div><div>Scadenza: ${dataScadenzaAss.toLocaleDateString('it-IT')}</div></div>`;
-            }
+            htmlScadenze += `<div class="scadenza-box status-ok"><div>${tipoStato}</div><div>Scadenza valida fino al: ${dataScadenzaRev.toLocaleDateString('it-IT')}</div></div>`;
         }
-        display.innerHTML = htmlScadenze;
     }
 
+    const assicurazioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'assicurazione');
+    if (assicurazioniEffettuate.length === 0) {
+        htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ Assicurazione RCA</div><div>Nessun rinnovo registrato.</div></div>`;
+    } else {
+        const ultimaAss = assicurazioniEffettuate[assicurazioniEffettuate.length - 1]; const dataUltimaAss = new Date(ultimaAss.data);
+        const dataScadenzaAss = new Date(dataUltimaAss.setFullYear(dataUltimaAss.getFullYear() + 1));
+        const giorniRimanentiAss = Math.ceil((dataScadenzaAss - oggi) / (1000 * 60 * 60 * 24));
+        
+        if (giorniRimanentiAss <= 0) {
+            htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ POLIZZA RCA SCADUTA!</div><div>Scaduta il ${dataScadenzaAss.toLocaleDateString('it-IT')}!</div></div>`;
+        } else if (giorniRimanentiAss <= 15) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>🛡️ RCA in scadenza!</div><div>Mancano solo ${giorniRimanentiAss} giorni.</div></div>`;
+        } else {
+            htmlScadenze += `<div class="scadenza-box status-ok"><div>Assicurazione RCA valida ✅</div><div>Scadenza: ${dataScadenzaAss.toLocaleDateString('it-IT')}</div></div>`;
+        }
+    }
+    display.innerHTML = htmlScadenze;
+}
     function comprimerESalvaImmagineRetro(input, destinazione) {
         if (!veicoloAttivo || !input.files || !input.files[0]) return;
         const file = input.files[0];
