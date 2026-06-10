@@ -37,8 +37,28 @@
         }
         
         .tabs-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .tabs-container { display: flex; gap: 8px; overflow-x: auto; width: 100%; -ms-overflow-style: none; scrollbar-width: none; }
-        .tabs-container::-webkit-scrollbar { display: none; }
+        .tabs-container { 
+    display: flex; 
+    gap: 8px; 
+    overflow-x: auto; 
+    width: 100%; 
+    padding-bottom: 6px;
+}
+.tabs-container::-webkit-scrollbar { 
+    height: 6px; 
+    display: block; 
+}
+.tabs-container::-webkit-scrollbar-track {
+    background: #e2e8f0; 
+    border-radius: 10px;
+}
+.tabs-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1; 
+    border-radius: 10px;
+}
+.tabs-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary); 
+}
         
         .tab-button {
             background: #e2e8f0; color: #64748b; border: none; padding: 10px 16px;
