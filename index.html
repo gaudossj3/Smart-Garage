@@ -917,7 +917,25 @@ async function salvaPezziRicambioAlVoloAsync() {
         btnDelete.classList.add('hidden');
     }
 }
+async function mostraFotoLibrettoSeEsistente() {
+    const testoVuoto = document.getElementById('testoVuotoFoto');
+    const imgTag = document.getElementById('immagineAnteprima');
+    const btnDelete = document.getElementById('btnRimuoviFoto');
+    if (!veicoloAttivo) return;
 
+    let mappa = await leggiDato("garage_foto_libretti") || {};
+    if (mappa[veicoloAttivo]) {
+        testoVuoto.classList.add('hidden'); 
+        imgTag.src = mappa[veicoloAttivo]; 
+        imgTag.classList.remove('hidden'); 
+        btnDelete.classList.remove('hidden');
+    } else {
+        testoVuoto.classList.remove('hidden'); 
+        imgTag.src = ""; 
+        imgTag.classList.add('hidden'); 
+        btnDelete.classList.add('hidden');
+    }
+}
     async function cancellaFotoLibrettoDiretta() {
         if (!veicoloAttivo || !confirm("Rimuovere la foto del libretto?")) return;
         let mappa = await leggiDato("garage_foto_libretti") || {};
@@ -963,9 +981,11 @@ async function salvaPezziRicambioAlVoloAsync() {
         const valore = parseInt(document.getElementById('kmStrumentoOggi').value);
         if(!veicoloAttivo || isNaN(valore)) return;
         let kmMappa = await leggiDato("garage_km_attuali") || {};
-        kmMappa[veicoloAttivo] = valore; await scriviDato("garage_km_attuali", kmMappa);
+        kmMappa[veicoloAttivo] = valore; 
+		await scriviDato("garage_km_attuali", kmMappa);
+		
         const interventions = await leggiTuttiInterventi();
-        await calcolaScadenzeFiltrate(interventions, veicoloAttivo);
+        await calcolaScadenzeFiltrate(interventions, veicoloAttivo, valore);
     }
 
     function attivaNuovoVeicolo() {
@@ -1338,18 +1358,24 @@ async function salvaAssicurazione(e) {
             const configKm = parseInt(configurazioniMappa[targaVeicolo]) || 15000; 
             const kmScadenza = parseInt(ultimoCambio.km) + configKm;
             
+            let kmAttualiMezzo;
+        if (kmForzati !== null) {
+            kmAttualiMezzo = kmForzati;
+        } else {
             const kmMappa = await leggiDato("garage_km_attuali") || {};
-            const kmAttualiMezzo = kmMappa[targaVeicolo] !== undefined ? parseInt(kmMappa[targaVeicolo]) : parseInt(ultimoCambio.km);
-            const kmRimanenti = kmScadenza - kmAttualiMezzo;
-            
-            if (kmRimanenti <= 0) {
-                htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ CAMBIO OLIO SCADUTO!</div><div>Fuori di ${Math.abs(kmRimanenti).toLocaleString('it-IT')} km.</div></div>`;
-            } else if (kmRimanenti < 2000) {
-                htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Cambio olio in scadenza!</div><div>Mancano solo ${kmRimanenti.toLocaleString('it-IT')} km.</div></div>`;
-            } else {
-                htmlScadenze += `<div class="scadenza-box status-ok"><div>Olio Motore OK ✅</div><div>Scadenza a ${kmScadenza.toLocaleString('it-IT')} km (Mancano ${kmRimanenti.toLocaleString('it-IT')} km).</div></div>`;
-            }
+            kmAttualiMezzo = kmMappa[targaVeicolo] !== undefined ? parseInt(kmMappa[targaVeicolo]) : parseInt(ultimoCambio.km);
         }
+        
+        const kmRimanenti = kmScadenza - kmAttualiMezzo;
+        
+        if (kmRimanenti <= 0) {
+            htmlScadenze += `<div class="scadenza-box status-danger"><div>⚠️ CAMBIO OLIO SCADUTO!</div><div>Fuori di ${Math.abs(kmRimanenti).toLocaleString('it-IT')} km.</div></div>`;
+        } else if (kmRimanenti < 2000) {
+            htmlScadenze += `<div class="scadenza-box status-warning"><div>🔧 Cambio olio in scadenza!</div><div>Mancano solo ${kmRimanenti.toLocaleString('it-IT')} km.</div></div>`;
+        } else {
+            htmlScadenze += `<div class="scadenza-box status-ok"><div>Olio Motore OK ✅</div><div>Scadenza a ${kmScadenza.toLocaleString('it-IT')} km (Mancano ${kmRimanenti.toLocaleString('it-IT')} km).</div></div>`;
+        }
+    }
 
         const revisioniEffettuate = interventi.filter(i => i.targa === targaVeicolo && i.tipoRecord === 'revisione');
         let mappaImm = await leggiDato("garage_immatricolazioni") || {};
