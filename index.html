@@ -722,7 +722,7 @@ async function controllaScadenzePerNotifiche() {
 
             if (kmRimanenti <= 0) {
                 inviaNotificaNativa(`⚠️ Tagliando Scaduto [${nomeVeicolo}]`, `Sei fuori di ${Math.abs(kmRimanenti).toLocaleString('it-IT')} km! Sostituisci l'olio.`);
-            } else if (kmRimanenti < 500) {
+            } else if (kmRimanenti < 1000) {
                 inviaNotificaNativa(`🔧 Olio in Scadenza [${nomeVeicolo}]`, `Mancano solo ${kmRimanenti.toLocaleString('it-IT')} km al prossimo cambio olio.`);
             }
         }
